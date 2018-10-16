@@ -1,0 +1,179 @@
+body {
+    background: #eee;
+}
+
+.adnotatio-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    align-content: top;
+    align-items: flex-start;
+    margin: 20px;
+    width: 70em;
+    margin-left: auto;
+    margin-right: auto;
+    align-items:stretch;
+
+    .document-wrapper {
+        position: relative;
+        flex-grow: 1;
+        flex-shrink: 1;
+        margin: auto;
+        z-index: 100;
+
+        .document {
+            border: 1px solid #000;
+            border-radius: 5px;
+            background: #fff;
+            padding: 10px;
+            box-shadow: 0px 0px 20px #0005;
+        }
+
+        .document-bg {
+            position: absolute;
+            width: 100%;
+            top: 0px;
+        }
+
+        .document-fg {
+            position: absolute;
+            width: 100%;
+            top: 0px;
+        }
+
+        .CommentButton {
+            display: none;
+            position: absolute;
+            height: 50px;
+            z-index: 10000;
+            border-radius: 25px;
+            width: 50px;
+            font-size: 25px;
+            border: 1px solid #aaa;
+            right: -25px;
+            margin-top: -15px;
+        }
+    }
+
+    .CommentBar {
+        position: relative;
+        padding: 10px;
+        padding-top: 0px;
+        background: #fafafa;
+        flex: 0 0 250px;
+        border: 1px dashed #aaa;
+        border-left: 0px;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        .comment {
+            text-align: left;
+            position: absolute;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            padding: 5px;
+            background: #fff;
+            margin: 10px;
+            margin-top: -15px;
+            margin-bottom: 20px;
+            width: 220px;
+            cursor: pointer;
+
+            .author {
+                opacity: 0.5;
+                font-size: small;
+                display: block;
+
+                &::after {
+                    content: " wrote:"
+                }
+            }
+
+            .replies {
+                background: #eee;
+                margin: -5px;
+                margin-top: 3px;
+                border-bottom-left-radius: 3px;
+                border-bottom-right-radius: 3px;
+
+                .reply {
+                    border-top: 1px solid #aaa;
+                    padding: 7px;
+
+                    .author::after {
+                        content: " replied:";
+                    }
+
+                    &:last-of-type {
+                        border-bottom-left-radius: 3px;
+                        border-bottom-right-radius: 3px;
+                    }
+                }
+            }
+
+        }
+
+        .comment .highlighted {
+            display: none;
+        }
+
+        .orphanTitle {
+            display: none;
+            width: 100%;
+            position: absolute;
+            text-align: center;
+            font-variant-caps: all-small-caps;
+            color: #aaa;
+            margin-top: 50px;
+            margin-bottom: 20px;
+        }
+
+        .orphan {
+            color: #aaa;
+            border-color: #aaa;
+        }
+        .orphan .highlighted {
+            display: block;
+            margin: 5px;
+            background: #eee;
+            padding: 5px;
+        }
+
+    }
+
+    .Document {
+        border-radius: 3px;
+        border: 1px solid #000;
+        padding: 25px;
+        position: relative;
+    }
+}
+
+.wrapper {
+    position: relative;
+}
+
+.toplevel {
+    max-width: 50em;
+    margin: auto;
+    position: relative;
+}
+
+
+
+
+
+
+
+
+.highlight {
+    background: #DCDA5988;
+    cursor: pointer;
+    padding: 1px;
+}
+.highlight:hover {
+    background: #DCDA59FF;
+}
