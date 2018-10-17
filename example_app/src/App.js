@@ -70,9 +70,11 @@ class App extends Component {
     return (
       <div className="App">
         <Adnotatio>
-            <button onClick={(e) => {this.setState({docID: 1})}}>Version 1</button>
-            <button onClick={(e) => {this.setState({docID: 2})}}>Version 2</button><br />
-            {this.renderDocument()}
+            <div class='document'>
+                <button onClick={(e) => {this.setState({docID: 1})}}>Version 1</button>
+                <button onClick={(e) => {this.setState({docID: 2})}}>Version 2</button><br />
+                {this.renderDocument()}
+            </div>
         </Adnotatio>
       </div>
     );

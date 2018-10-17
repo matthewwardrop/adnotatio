@@ -55,8 +55,8 @@ export default class Adnotatio extends React.Component {
     }
 
     componentWillUnmount() {
-      window.removeEventListener('resize', this.onResize);
-      this.storage.disconnect();
+        window.removeEventListener('resize', this.onResize);
+        this.storage.disconnect();
     }
 
     handleMouseUp = (e) => {
@@ -133,23 +133,24 @@ export default class Adnotatio extends React.Component {
 
     render() {
         return (
-            <>
-
             <div className='adnotatio-wrapper'>
-                <div className='document-wrapper' ref={this.wrapper}>
-                    <button className="CommentButton" ref={this.commentButton} onClick={this.makeAnnotation}>🗩</button>
-                    <div className="document-bg" ref={this.bglayer} />
-                    <div className="document" ref={this.document} onMouseUp={this.handleMouseUp}>
-                        <button onClick={() => {window.localStorage.clear(); this.storage.comments=[]; this.setState({comments: []})}}>Clear All Comments</button>
+                <div className='adnotatio-document-wrapper' ref={this.wrapper}>
+                    <button className="adnotatio-comment-button" ref={this.commentButton} onClick={this.makeAnnotation}>🗩</button>
+                    <div className="adnotatio-document-bg" ref={this.bglayer} />
+                    <div className="adnotatio-document-main" ref={this.document} onMouseUp={this.handleMouseUp}>
                         {this.props.children}
                     </div>
-                    <div className="document-fg" ref={this.fglayer} />
+                    <div className="adnotatio-document-fg" ref={this.fglayer} />
                 </div>
                 {this.state.comments.length > 0 &&
+                    <>
                     <CommentBar comments={this.state.comments} replyCallback={this.replyCallback} ref={this.commentbar} />
+                    <button onClick={() => {window.localStorage.clear(); this.storage.comments=[]; this.setState({comments: []})}}><span style={{display: 'inline-block', transform: 'rotate(90deg)', transformOrigin: 'center center', whiteSpace: 'pre', width: '1em', textAlign: 'center'}}>Clear All Comments</span></button>
+                    </>
                 }
+
+
             </div>
-            </>
         );
     }
 }

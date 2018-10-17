@@ -33,13 +33,13 @@ export default class CommentBar extends React.Component {
 
         // sort comments
         elements = elements.sort((a,b) => {
-            if (a.className == 'orphanTitle') {
+            if (a.className == 'adnotatio-commentbar-orphan') {
                 if (b.dataset.isOrphan == 'true') {
                     return 1;
                 } else {
                     return -1;
                 }
-            } else if (b.className == 'orphanTitle') {
+            } else if (b.className == 'adnotatio-commentbar-orphan') {
                 if (a.dataset.isOrphan == 'true') {
                     return 1;
                 } else {
@@ -73,15 +73,15 @@ export default class CommentBar extends React.Component {
             let y_offset = Math.max(bottom, el.dataset.yOffset || 0);
             el.style.top = y_offset + 'px';
 
-            if (el.className == 'orphanTitle') {
+            if (el.className == 'adnotatio-commentbar-orphanheader') {
                 if (orphanCount > 0) {
                     el.style.display = 'block';
                 } else {
                     el.style.display = 'none';
                 }
             } else {
-                if (el.dataset.isOrphan == 'true') el.className = 'comment orphan'
-                else el.className = 'comment'
+                if (el.dataset.isOrphan == 'true') el.className = 'adnotatio-commentbar-comment adnotatio-commentbar-orphan'
+                else el.className = 'adnotatio-commentbar-comment'
             }
 
             bottom = y_offset + el.offsetHeight;
@@ -102,24 +102,25 @@ export default class CommentBar extends React.Component {
 
     render() {
         console.log(this.props.comments)
-        return <div className="CommentBar" ref={this.commentContainer}>
+        return <div className="adnotatio-commentbar" ref={this.commentContainer}>
             {this.props.comments.map(comment => {
-                return <div data-comment-id={comment.uuid} data-y-offset={comment.y_offset} className={'comment' + (comment.isOrphan ? ' orphan': '')}
+                return <div className="adnotatio-commentbar-comment"
+                        data-comment-id={comment.uuid} data-y-offset={comment.y_offset} className={'adnotatio-commentbar-comment' + (comment.isOrphan ? ' adnotatio-commentbar-orphan': '')}
                         onClick={this.handleReply}>
-                    <span className='author'>{comment.author || 'Anonymous'}</span>
-                    <span className='highlighted'>{comment.annotations[0].highlighted_text}</span>
-                    <span className='text'>{comment.text}</span>
+                    <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>
+                    <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
+                    <span className='adnotatio-commentbar-comment-text'>{comment.text}</span>
                     <div className='replies'>
                         {comment.replies.map(reply => {
-                            return <div className='reply'>
-                                <span className='author'>{reply.author || 'Anonymous'}</span>
-                                <span className='text'>{reply.text}</span>
+                            return <div className='adnotatio-commentbar-comment-reply'>
+                                <span className='adnotatio-commentbar-comment-author'>{reply.author || 'Anonymous'}</span>
+                                <span className='adnotatio-commentbar-comment-text'>{reply.text}</span>
                             </div>
                         })}
                     </div>
                 </div>
             })}
-            <span className='orphanTitle' key='orphanTitle'>Orphans</span>
+            <span className='adnotatio-commentbar-orphanheader' key='orphanTitle'>Orphans</span>
         </div>
     }
 }
