@@ -136,7 +136,7 @@ export default class CommentBar extends React.Component {
     render() {
         return <div className="adnotatio-commentbar" ref={this.commentContainer}>
             {this.props.comments.map(comment => {
-                return <div className="adnotatio-commentbar-comment"
+                return <div className="adnotatio-commentbar-comment" key={comment.uuid}
                         data-comment-id={comment.uuid} data-y-offset={comment.y_offset} className={'adnotatio-commentbar-comment' + (comment.isOrphan ? ' adnotatio-commentbar-orphan': '')}
                         onClick={this.handleReply} onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}} onMouseOut={() => {this.props.unfocusAnnotations(comment.uuid)}}>
                     <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>

@@ -75,6 +75,18 @@
                 box-shadow: 0px 2px 8px #0003;
             }
 
+            @keyframes adnotatio-comment-wiggle {
+              0% {transform: translateX(0px);}
+              20% {transform: translateX(5px);}
+              50% {transform: translateX(0px);}
+              75% {transform: translateX(-5px);}
+              100% {transform: translateX(0px);}
+            }
+
+            &[data-focussed="true"] {
+                animation: adnotatio-comment-wiggle 0.1s 2 linear;
+            }
+
             .adnotatio-commentbar-comment-author {
                 opacity: 0.5;
                 font-size: small;
