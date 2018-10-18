@@ -108,7 +108,7 @@ export default class Adnotatio extends React.Component {
         let isOrphan = range ? false : true;
         let y_offset = 0;
         if (!isOrphan) {
-            y_offset = ((document.documentElement.scrollTop || document.body.scrollTop) + range.getClientRects()[0].y - getOffset(this.wrapper.current).top);
+            y_offset = (range.getClientRects()[0].top - getOffset(this.wrapper.current).top);
         }
 
         return this.commentbar.current.setCommentOffset(el.uuid, y_offset, isOrphan);

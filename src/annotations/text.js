@@ -77,14 +77,8 @@ function addClientRects(elt, root=document.body) {
 		var tableRectDiv = document.createElement('div');
 		tableRectDiv.style.position = 'absolute';
         tableRectDiv.className = 'highlight';
-		var scrollTop = (
-            (document.documentElement.scrollTop || document.body.scrollTop)
-            - offset.top);
-		var scrollLeft = (
-            (document.documentElement.scrollLeft || document.body.scrollLeft)
-            - offset.left);
-		tableRectDiv.style.top = (rect.top + scrollTop) + 'px';
-		tableRectDiv.style.left = (rect.left + scrollLeft) + 'px';
+		tableRectDiv.style.top = (rect.top - offset.top) + 'px';
+		tableRectDiv.style.left = (rect.left - offset.left) + 'px';
 		// we want rect.width to be the border width, so content width is 2px less.
 		tableRectDiv.style.width = (rect.width - 2) + 'px';
 		tableRectDiv.style.height = (rect.height - 2) + 'px';
