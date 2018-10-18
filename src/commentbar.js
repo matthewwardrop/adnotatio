@@ -110,7 +110,7 @@ export default class CommentBar extends React.Component {
                     <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
                     <span className='adnotatio-commentbar-comment-text'>{comment.text}</span>
-                    <div className='replies'>
+                    <div className='adnotatio-commentbar-comment-replies'>
                         {comment.replies.map(reply => {
                             return <div className='adnotatio-commentbar-comment-reply'>
                                 <span className='adnotatio-commentbar-comment-author'>{reply.author || 'Anonymous'}</span>
