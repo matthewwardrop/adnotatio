@@ -26,10 +26,21 @@ export default class Adnotatio extends React.Component {
         this.state = {'comments': []}
 
         this.storage = new CommentStorage();
+
+        try {
+            this.mutationObserver = new window.MutationObserver(this.onDomUpdate);
+        } catch {
+            this.mutationObserver = null;
+        }
+
     }
 
     updateCommentsHook = (comments) => {
         this.setState({'comments': comments})
+    }
+
+    onDomUpdate = () => {
+        this.forceUpdate();
     }
 
     onResize = () => {
@@ -42,6 +53,9 @@ export default class Adnotatio extends React.Component {
       window.addEventListener('resize', this.onResize);
       this.storage.connect(this.updateCommentsHook);
       this.componentDidUpdate();
+      if (this.mutationObserver) {
+          this.mutationObserver.observe(this.document.current, { attributes: true, childList: true, subtree: true });
+      }
     }
 
     componentDidUpdate() {
@@ -55,6 +69,9 @@ export default class Adnotatio extends React.Component {
     }
 
     componentWillUnmount() {
+        if (this.mutationObserver) {
+            this.mutationObserver.disconnect();
+        }
         window.removeEventListener('resize', this.onResize);
         this.storage.disconnect();
     }
