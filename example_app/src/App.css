@@ -16,12 +16,23 @@ code {
 
 .adnotatio-wrapper {
     margin-top: 2em;
+    background: #fff;
+}
+
+.adnotatio-commentbar {
+    padding: 10px;
+    padding-top: 0px;
+    background: #fafafa;
+    flex: 0 0 250px;
+    border: 1px dashed #aaa;
+    border-left: 0px;
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 
 .document {
     border: 1px solid #000;
     border-radius: 5px;
-    background: #fff;
     padding: 10px;
     box-shadow: 0px 0px 20px #0005;
     max-width: 80em;

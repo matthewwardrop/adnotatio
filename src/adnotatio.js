@@ -5,6 +5,7 @@ import CommentStorage from './storage';
 import CommentBar from './commentbar'
 import TextAnnotation from './annotations/text';
 import Comment from './comment';
+import {getViewportOffset} from './utils';
 import './base.less';
 
 module.exports = Adnotatio;
@@ -35,16 +36,45 @@ export default class Adnotatio extends React.Component {
 
     }
 
+    // Hooks called by children components
+
     updateCommentsHook = (comments) => {
         this.setState({'comments': comments})
     }
 
+    focusAnnotations = (uuid) => {
+        this.fglayer.current.querySelectorAll('div[data-comment-id="' + uuid + '"]').forEach((el) => {
+            el.dataset.focussed = "true";
+        })
+    }
+
+    unfocusAnnotations = (uuid) => {
+        this.fglayer.current.querySelectorAll('div[data-comment-id="' + uuid + '"]').forEach((el) => {
+            el.dataset.focussed = "false";
+        })
+    }
+
+    // Event handlers
     onDomUpdate = () => {
         this.forceUpdate();
     }
 
     onResize = () => {
         this.forceUpdate();
+    }
+
+    onClickAnnotation = (uuid) => {
+        // focus comment
+    }
+
+    onMouseOverAnnotation = (uuid) => {
+        // highlight annotation and comment
+        this.commentbar.current.focusComment(uuid);
+    }
+
+    onMouseOutAnnotation = (uuid) => {
+        // relax annotation and comment
+        this.commentbar.current.unfocusComment(uuid);
     }
 
     // Component lifecycle methods
@@ -91,10 +121,13 @@ export default class Adnotatio extends React.Component {
         if (this.state.comments.length === 0) return;
         this.state.comments.forEach((comment) => {
             comment.annotations.forEach((annotation) => {
-                console.log(annotation);
-                annotation.render(
-                    this.document.current, this.bglayer.current, this.fglayer.current
+                let annotationElement = annotation.render(
+                    this.document.current, this.bglayer.current, this.fglayer.current,
+                    () => {this.onClickAnnotation(comment.uuid)},
+                    () => {this.onMouseOverAnnotation(comment.uuid)},
+                    () => {this.onMouseOutAnnotation(comment.uuid)}
                 );
+                if (annotationElement) annotationElement.dataset.commentId = comment.uuid;
             })
             this.renderCommentBox(comment);
         })
@@ -108,10 +141,10 @@ export default class Adnotatio extends React.Component {
         let isOrphan = range ? false : true;
         let y_offset = 0;
         if (!isOrphan) {
-            y_offset = (range.getClientRects()[0].top - getOffset(this.wrapper.current).top);
+            y_offset = (range.getClientRects()[0].top - getViewportOffset(this.wrapper.current).top);
         }
 
-        return this.commentbar.current.setCommentOffset(el.uuid, y_offset, isOrphan);
+        return this.commentbar.current.setCommentAttributes(el.uuid, y_offset, isOrphan);
     }
 
     makeAnnotation = (e) => {
@@ -161,7 +194,7 @@ export default class Adnotatio extends React.Component {
                 </div>
                 {this.state.comments.length > 0 &&
                     <>
-                    <CommentBar comments={this.state.comments} replyCallback={this.replyCallback} ref={this.commentbar} />
+                    <CommentBar comments={this.state.comments} replyCallback={this.replyCallback} focusAnnotations={this.focusAnnotations} unfocusAnnotations={this.unfocusAnnotations} ref={this.commentbar} />
                     <button onClick={() => {window.localStorage.clear(); this.storage.comments=[]; this.setState({comments: []})}}><span style={{display: 'inline-block', transform: 'rotate(90deg)', transformOrigin: 'center center', whiteSpace: 'pre', width: '1em', textAlign: 'center'}}>Clear All Comments</span></button>
                     </>
                 }
@@ -170,14 +203,4 @@ export default class Adnotatio extends React.Component {
             </div>
         );
     }
-}
-
-
-
-function getOffset(el) {
-  const rect = el.getBoundingClientRect();
-  return {
-    left: rect.left + window.scrollX,
-    top: rect.top + window.scrollY
-  };
 }

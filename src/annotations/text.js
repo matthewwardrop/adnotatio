@@ -1,7 +1,7 @@
 'use strict';
 
 import Annotation from './base';
-import {get_element_xpath} from '../utils.js';
+import {getViewportOffset, getXPath} from '../utils.js';
 
 export default class TextAnnotation extends Annotation {
 
@@ -15,9 +15,36 @@ export default class TextAnnotation extends Annotation {
         return this.spec.text;
     }
 
-    render = (root, bglayer, fglayer) => {
+    render = (root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) => {
         let range = this.toRange(root);
-        if (range) addClientRects(range, bglayer);
+        if (!range) return;
+
+        var rootOffset = getViewportOffset(fglayer);
+    	var rects = range.getClientRects();
+
+        let highlightContainer = document.createElement('div');
+        highlightContainer.className = 'adnotatio-text-highlight';
+        highlightContainer.style.top = '0px';
+        highlightContainer.style.left = '0px';
+        highlightContainer.style.width = '0px';
+        highlightContainer.style.height = '0px';
+        if (onclick) highlightContainer.onclick = onclick;
+        if (onmouseover) highlightContainer.onmouseover = onmouseover;
+        if (onmouseout) highlightContainer.onmouseout = onmouseout;
+
+    	for (var i = 0; i != rects.length; i++) {
+    		var rect = rects[i];
+    		var highlightDiv = document.createElement('div');
+    		highlightDiv.style.top = (rect.top - rootOffset.top) + 'px';
+    		highlightDiv.style.left = (rect.left - rootOffset.left) + 'px';
+    		highlightDiv.style.width = rect.width + 'px';
+    		highlightDiv.style.height = rect.height + 'px';
+    		highlightContainer.appendChild(highlightDiv);
+    	}
+
+        fglayer.appendChild(highlightContainer);
+
+        return highlightContainer;
     }
 
     // Conversion to and from DOM Range
@@ -27,11 +54,11 @@ export default class TextAnnotation extends Annotation {
             ...this.get_spec_base(),
             text: range.toString(),
             startContext: {
-                xpath: get_element_xpath(range.startContainer, root),
+                xpath: getXPath(range.startContainer, root),
                 offset: range.startOffset
             },
             endContext: {
-                xpath: get_element_xpath(range.endContainer, root),
+                xpath: getXPath(range.endContainer, root),
                 offset: range.endOffset
             }
         })
@@ -53,35 +80,4 @@ export default class TextAnnotation extends Annotation {
         return range;
     }
 
-}
-
-
-function getOffset(el) {
-  const rect = el.getBoundingClientRect();
-  return {
-    left: rect.left + window.scrollX,
-    top: rect.top + window.scrollY
-  };
-}
-
-
-function addClientRects(elt, root=document.body) {
-	// Absolutely position a div over each client rect so that its border width
-	// is the same as the rectangle's width.
-	// Note: the overlays will be out of place if the user resizes or zooms.
-    var offset = getOffset(root)
-    console.log(elt);
-	var rects = elt.getClientRects();
-	for (var i = 0; i != rects.length; i++) {
-		var rect = rects[i];
-		var tableRectDiv = document.createElement('div');
-		tableRectDiv.style.position = 'absolute';
-        tableRectDiv.className = 'highlight';
-		tableRectDiv.style.top = (rect.top - offset.top) + 'px';
-		tableRectDiv.style.left = (rect.left - offset.left) + 'px';
-		// we want rect.width to be the border width, so content width is 2px less.
-		tableRectDiv.style.width = (rect.width - 2) + 'px';
-		tableRectDiv.style.height = (rect.height - 2) + 'px';
-		root.appendChild(tableRectDiv);
-	}
 }

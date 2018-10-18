@@ -6,14 +6,27 @@ export default class CommentBar extends React.Component {
 
     constructor(props) {
         super(props);
-        this.commentOffsets = {}
-        this.commentIsOrphan = {}
+        this.commentAttributes = {}
         this.commentContainer = React.createRef();
     }
 
-    setCommentOffset(uuid, offset, isOrphan) {
-        this.commentOffsets[uuid] = offset;
-        this.commentIsOrphan[uuid] = isOrphan;
+    setCommentAttributes(uuid, offset, isOrphan) {
+        this.commentAttributes[uuid] = {
+            offset: offset,
+            isOrphan: isOrphan
+        }
+    }
+
+    focusComment = (uuid) => {
+        this.commentContainer.current.querySelectorAll('div[data-comment-id="' + uuid + '"]').forEach((el) => {
+            el.dataset.focussed = "true";
+        })
+    }
+
+    unfocusComment = (uuid) => {
+        this.commentContainer.current.querySelectorAll('div[data-comment-id="' + uuid + '"]').forEach((el) => {
+            el.dataset.focussed = "false";
+        })
     }
 
     renderOffsets() {
@@ -22,9 +35,9 @@ export default class CommentBar extends React.Component {
         let orphanCount = 0;
 
         elements.forEach(el => {
-            if (this.commentOffsets.hasOwnProperty(el.dataset['commentId'])) {
-                el.dataset['yOffset'] = this.commentOffsets[el.dataset['commentId']];
-                el.dataset['isOrphan'] = this.commentIsOrphan[el.dataset['commentId']];
+            if (this.commentAttributes.hasOwnProperty(el.dataset['commentId'])) {
+                el.dataset['yOffset'] = this.commentAttributes[el.dataset['commentId']].offset;
+                el.dataset['isOrphan'] = this.commentAttributes[el.dataset['commentId']].isOrphan;
                 if (el.dataset.isOrphan === 'true') {
                     orphanCount = orphanCount + 1;
                 }
@@ -106,13 +119,13 @@ export default class CommentBar extends React.Component {
             {this.props.comments.map(comment => {
                 return <div className="adnotatio-commentbar-comment"
                         data-comment-id={comment.uuid} data-y-offset={comment.y_offset} className={'adnotatio-commentbar-comment' + (comment.isOrphan ? ' adnotatio-commentbar-orphan': '')}
-                        onClick={this.handleReply}>
+                        onClick={this.handleReply} onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}} onMouseOut={() => {this.props.unfocusAnnotations(comment.uuid)}}>
                     <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
                     <span className='adnotatio-commentbar-comment-text'>{comment.text}</span>
                     <div className='adnotatio-commentbar-comment-replies'>
                         {comment.replies.map(reply => {
-                            return <div className='adnotatio-commentbar-comment-reply'>
+                            return <div key={reply.uuid} className='adnotatio-commentbar-comment-reply'>
                                 <span className='adnotatio-commentbar-comment-author'>{reply.author || 'Anonymous'}</span>
                                 <span className='adnotatio-commentbar-comment-text'>{reply.text}</span>
                             </div>
