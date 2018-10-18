@@ -1,6 +1,8 @@
 import React from 'react';
-
+const KaTeX = require('katex');
 import Comment from './comment';
+
+import 'katex/dist/katex.min.css';
 
 export default class CommentBar extends React.Component {
 
@@ -113,8 +115,25 @@ export default class CommentBar extends React.Component {
         this.props.replyCallback(e.currentTarget.dataset.commentId, comment)
     }
 
+    renderCommentString = (comment) => {
+        return comment.replace(/(?:\$\$(.*?)\$\$)|(?:\\\[(.*?)\\\])|(?:\$(.*?)\$)|(?:\\\((.*?)\\\))/g, function(outer, inner1, inner2, inner3, inner4, offset, string) {
+            let displayMode = !!(inner1 || inner2);
+            let inner = inner1 || inner2 || inner3 || inner4;
+
+            try {
+                return KaTeX.renderToString(inner, { displayMode: displayMode });
+            } catch (e) {
+                if (e instanceof KaTeX.ParseError) {
+                    console.log(e);
+                    return "<span class='adnotatio-commentbar-latex-error' title='" + e.toString() + "'>" + inner + "</span>";
+                } else {
+                    throw e;
+                }
+            }
+        });
+    }
+
     render() {
-        console.log(this.props.comments)
         return <div className="adnotatio-commentbar" ref={this.commentContainer}>
             {this.props.comments.map(comment => {
                 return <div className="adnotatio-commentbar-comment"
@@ -122,12 +141,12 @@ export default class CommentBar extends React.Component {
                         onClick={this.handleReply} onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}} onMouseOut={() => {this.props.unfocusAnnotations(comment.uuid)}}>
                     <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
-                    <span className='adnotatio-commentbar-comment-text'>{comment.text}</span>
+                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} />
                     <div className='adnotatio-commentbar-comment-replies'>
                         {comment.replies.map(reply => {
                             return <div key={reply.uuid} className='adnotatio-commentbar-comment-reply'>
                                 <span className='adnotatio-commentbar-comment-author'>{reply.author || 'Anonymous'}</span>
-                                <span className='adnotatio-commentbar-comment-text'>{reply.text}</span>
+                                <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(reply.text)}} />
                             </div>
                         })}
                     </div>
