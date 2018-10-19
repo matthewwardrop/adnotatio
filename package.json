@@ -42,5 +42,8 @@
         "rollup-plugin-node-resolve": "^3.4.0",
         "rollup-plugin-postcss": "^1.6.2",
         "rollup-plugin-uglify": "^6.0.0"
+    },
+    "peerDependencies": {
+        "katex": "*"
     }
 }

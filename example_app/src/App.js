@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Adnotatio from 'adnotatio';
 import './App.css';
+import 'katex/dist/katex.min.css';
 
 
 class App extends Component {
