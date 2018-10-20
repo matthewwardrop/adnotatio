@@ -32,15 +32,20 @@ export default class TextAnnotation extends Annotation {
         if (onmouseover) highlightContainer.onmouseover = onmouseover;
         if (onmouseout) highlightContainer.onmouseout = onmouseout;
 
+        let minOffsetY = Infinity;
+
     	for (var i = 0; i != rects.length; i++) {
     		var rect = rects[i];
     		var highlightDiv = document.createElement('div');
+            minOffsetY = Math.min(minOffsetY, rect.top - rootOffset.top);
     		highlightDiv.style.top = (rect.top - rootOffset.top) + 'px';
     		highlightDiv.style.left = (rect.left - rootOffset.left) + 'px';
     		highlightDiv.style.width = rect.width + 'px';
     		highlightDiv.style.height = rect.height + 'px';
     		highlightContainer.appendChild(highlightDiv);
     	}
+
+        highlightContainer.dataset.minOffsetY = minOffsetY;
 
         fglayer.appendChild(highlightContainer);
 

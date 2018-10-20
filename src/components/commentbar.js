@@ -1,8 +1,9 @@
 import React from 'react';
-const KaTeX = require('katex');
-import Comment from './comment';
+import Comment from '../comment';
+import CommentBox from './commentbox'
 
 import 'katex/dist/katex.min.css';
+
 
 export default class CommentBar extends React.Component {
 
@@ -77,10 +78,6 @@ export default class CommentBar extends React.Component {
             }
         })
 
-        console.log(
-            elements
-        )
-
         var bottom = 0;
 
         elements.forEach(el => {
@@ -106,51 +103,25 @@ export default class CommentBar extends React.Component {
     }
 
     handleReply = (e) => {
-        let comment = new Comment(prompt("Please enter your reply: "), 'Anonymous');
-        console.log(e.currentTarget.dataset.commentId, comment.text)
-        if (!comment.text) {
-            return;
-        }
-        console.log(e.currentTarget.dataset.commentId, comment)
-        this.props.replyCallback(e.currentTarget.dataset.commentId, comment)
+        this.props.onCommentReply(e.currentTarget.dataset.commentId)
     }
 
-    renderCommentString = (comment) => {
-        return comment.replace(/(?:\$\$(.*?)\$\$)|(?:\\\[(.*?)\\\])|(?:\$(.*?)\$)|(?:\\\((.*?)\\\))/g, function(outer, inner1, inner2, inner3, inner4, offset, string) {
-            let displayMode = !!(inner1 || inner2);
-            let inner = inner1 || inner2 || inner3 || inner4;
-
-            try {
-                return KaTeX.renderToString(inner, { displayMode: displayMode });
-            } catch (e) {
-                if (e instanceof KaTeX.ParseError) {
-                    console.log(e);
-                    return "<span class='adnotatio-commentbar-latex-error' title='" + e.toString() + "'>" + inner + "</span>";
-                } else {
-                    throw e;
-                }
-            }
-        });
+    onResolve = (e) => {
+        alert('resolving!')
     }
 
     render() {
         return <div className="adnotatio-commentbar" ref={this.commentContainer}>
             {this.props.comments.map(comment => {
-                return <div className="adnotatio-commentbar-comment" key={comment.uuid}
-                        data-comment-id={comment.uuid} data-y-offset={comment.y_offset} className={'adnotatio-commentbar-comment' + (comment.isOrphan ? ' adnotatio-commentbar-orphan': '')}
-                        onClick={this.handleReply} onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}} onMouseOut={() => {this.props.unfocusAnnotations(comment.uuid)}}>
-                    <span className='adnotatio-commentbar-comment-author'>{comment.author || 'Anonymous'}</span>
-                    <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
-                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} />
-                    <div className='adnotatio-commentbar-comment-replies'>
-                        {comment.replies.map(reply => {
-                            return <div key={reply.uuid} className='adnotatio-commentbar-comment-reply'>
-                                <span className='adnotatio-commentbar-comment-author'>{reply.author || 'Anonymous'}</span>
-                                <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(reply.text)}} />
-                            </div>
-                        })}
-                    </div>
-                </div>
+                return <CommentBox
+                        key={comment.uuid}
+                        comment={comment}
+                        onClick={this.handleReply}
+                        onCommentReply={this.props.onCommentReply}
+                        onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}}
+                        onMouseOut={() => {this.props.unfocusAnnotations(comment.uuid)}}
+                        onHeightChange={(height, instance) => {this.renderOffsets()}}
+                        onChange={this.props.onCommentChange} />
             })}
             <span className='adnotatio-commentbar-orphanheader' key='orphanTitle'>Orphans</span>
         </div>

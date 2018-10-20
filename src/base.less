@@ -65,11 +65,31 @@
             padding: 5px;
             background: #fff;
             margin: 10px;
-            margin-top: -15px;
+            margin-top: -5px;
             margin-bottom: 20px;
             width: 220px;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
+
+            .adnotatio-commentbar-comment-header {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+
+                .adnotatio-commentbar-comment-header-avatar {
+                    background: #aaa;
+                    width: 30px;
+                    height: 30px;
+                }
+
+            }
+
+            textarea {
+                display: block;
+                width: 100%;
+                box-sizing: border-box;
+                resize: none;
+            }
 
             &[data-focussed="true"], &:hover {
                 box-shadow: 0px 2px 8px #0003;
@@ -92,9 +112,13 @@
                 font-size: small;
                 display: block;
 
-                &::after {
-                    content: " wrote:"
-                }
+                // &::after {
+                //     content: " wrote:"
+                // }
+            }
+
+            .adnotatio-commentbar-comment-resolve {
+                font-size: small;
             }
 
             .adnotatio-commentbar-comment-highlighted {
@@ -112,15 +136,33 @@
                     border-top: 1px solid #aaa;
                     padding: 7px;
 
-                    .adnotatio-commentbar-comment-author::after {
-                        content: " replied:";
-                    }
+                    // .adnotatio-commentbar-comment-author::after {
+                    //     content: " replied:";
+                    // }
 
                     &:last-of-type {
                         border-bottom-left-radius: 3px;
                         border-bottom-right-radius: 3px;
                     }
                 }
+
+                .adnotatio-commentbar-comment-reply-button {
+                    display: block;
+                    width: 100%;
+                    background: #aaa;
+                    border: 0px;
+                }
+            }
+
+            .adnotation-commentbar-comment-save {
+                background-color: rgb(77, 144, 254);
+                background-image: -webkit-linear-gradient(top, rgb(77, 144, 254), rgb(71, 135, 237));
+                border: 1px solid rgb(48, 121, 237);
+                border-radius: 2px;
+                padding: 5px;
+                margin: 2px;
+                color: #fff;
+                min-width: 54px;
             }
 
             .adnotatio-commentbar-latex-error {
