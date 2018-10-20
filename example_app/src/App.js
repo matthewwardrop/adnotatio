@@ -12,8 +12,8 @@ class App extends Component {
     }
 
     renderDocument = () => {
-        let word = this.state.docID == 1 ? "" : "supercalifragilisticexpialodotious";
-        let misspelt = this.state.docID == 1 ? "spllg" : "spelling";
+        let word = this.state.docID === 1 ? "" : "supercalifragilisticexpialodotious";
+        let misspelt = this.state.docID === 1 ? "spllg" : "spelling";
         return <>
             <h1>On the subject of persistent textual annotations</h1>
             <h2>Basic Highlighting behaviour</h2>
@@ -27,8 +27,8 @@ class App extends Component {
             offset within text nodes.</p>
             <p>The spelling of "{misspelt}" will be corrected in future versions.</p>
             <h2>Complex DOM</h2>
-            <p>{<>This paragraph</>} | {<>consists of</>} | {<>lots of small</>} | {<>text fragments</>}. {<>This one changes {this.state.docID == 1 ? "'this disappears''" : ""}.</>} {this.state.docID == 1 && <>This one disappears.</>}{<>This one remains.</>}{<>So does this one.</>}</p>
-            <p>{this.state.docID == 1 ? <>Part of this text will be emboldened.</> : <>Part of <b>this text will</b> be emboldened.</>}</p>
+            <p>{<>This paragraph</>} | {<>consists of</>} | {<>lots of small</>} | {<>text fragments</>}. {<>This one changes {this.state.docID === 1 ? "'this disappears''" : ""}.</>} {this.state.docID === 1 && <>This one disappears.</>}{<>This one remains.</>}{<>So does this one.</>}</p>
+            <p>{this.state.docID === 1 ? <>Part of this text will be emboldened.</> : <>Part of <b>this text will</b> be emboldened.</>}</p>
             <h2>Gross changes to the DOM</h2>
             {this.state.docID > 1 &&
                 <p>
@@ -50,7 +50,7 @@ class App extends Component {
                 Sed efficitur lacus vitae lacus tempus maximus nec a erat. Mauris tempor nunc sem, at venenatis dui interdum sed. Pellentesque fermentum lacus in accumsan varius. In ultrices, turpis sit amet egestas pretium, dolor ex auctor sem, id
                 lacinia ante dolor sit amet tellus. Nulla nec mauris vel lorem congue elementum. Cras eget mauris et turpis sollicitudin tempus a at augue. Aenean tincidunt congue magna sit amet maximus.
             </p>
-            {this.state.docID == 1 &&
+            {this.state.docID === 1 &&
                 <p id='test3'>
                     This paragraph will be deleted.
                     Sed blandit condimentum dictum. Donec non diam justo. Donec et justo mi. Pellentesque aliquam justo nibh, a posuere neque mollis sed. Vestibulum congue odio pretium, interdum velit in, eleifend mauris. Integer a posuere lorem. Nullam
