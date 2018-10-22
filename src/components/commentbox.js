@@ -5,6 +5,9 @@ const KaTeX = require('katex');
 import Comment from '../comment';
 import CommentHeader from './commentheader';
 import Underscore from 'underscore';
+import HighlightJs from 'highlight.js';
+import 'highlight.js/styles/github.css'
+
 
 import {greedyHandler} from '../utils.js';
 
@@ -50,6 +53,12 @@ export default class CommentBox extends React.Component {
                     throw e;
                 }
             }
+        }).replace(/&#x60;&#x60;&#x60;(.*?)&#x60;&#x60;&#x60;/, function (outer, inner, offset, string) {
+            let highlighted = HighlightJs.highlightAuto(inner);
+            return `<code language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
+        }).replace(/&#x60;(.*?)&#x60;/, function (outer, inner, offset, string) {
+            let highlighted = HighlightJs.highlightAuto(inner);
+            return `<code class='inline' language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
         });
     }
 

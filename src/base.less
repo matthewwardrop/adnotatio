@@ -99,6 +99,7 @@
                 z-index: 200;
                 box-shadow: 0px 2px 8px #0008;
                 border-top-left-radius: 0px;
+                cursor: default;
             }
 
             .adnotatio-commentbar-comment-arrow-outline {
@@ -157,6 +158,22 @@
                 white-space: pre-wrap;
                 word-break: break-word;
                 display: block;
+                padding: 3px;
+                font-size: small;
+
+                code {
+                    display: block;
+                    overflow: auto;
+                    max-height: 3em;
+                    border: 1px solid #aaa;
+                    padding: 3px;
+                    white-space: pre;
+                }
+
+                code.inline {
+                    display: inline;
+                    white-space: normal;
+                }
             }
 
             .adnotatio-commentbar-comment-replies {
