@@ -1,7 +1,7 @@
 'use strict';
 
 import Annotation from './base';
-import {getViewportOffset, getXPath} from '../utils.js';
+import {getViewportOffset, getXPath, greedyHandler} from '../utils.js';
 
 export default class TextAnnotation extends Annotation {
 
@@ -28,7 +28,7 @@ export default class TextAnnotation extends Annotation {
         highlightContainer.style.left = '0px';
         highlightContainer.style.width = '0px';
         highlightContainer.style.height = '0px';
-        if (onclick) highlightContainer.onclick = onclick;
+        if (onclick) highlightContainer.onclick = greedyHandler(onclick);
         if (onmouseover) highlightContainer.onmouseover = onmouseover;
         if (onmouseout) highlightContainer.onmouseout = onmouseout;
 

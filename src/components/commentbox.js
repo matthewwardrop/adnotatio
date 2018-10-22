@@ -6,6 +6,8 @@ import Comment from '../comment';
 import CommentHeader from './commentheader';
 import Underscore from 'underscore';
 
+import {greedyHandler} from '../utils.js';
+
 
 export default class CommentBox extends React.Component {
 
@@ -20,7 +22,10 @@ export default class CommentBox extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {comment: this.props.comment.copy(), edit: this.props.comment.isDraft};
+        this.state = {
+            comment: this.props.comment.copy(),
+            edit: this.props.comment.isDraft
+        };
     }
 
     componentWillReceiveProps(nextProps) {
@@ -74,15 +79,35 @@ export default class CommentBox extends React.Component {
 
     render() {
         let comment = this.state.comment;
+
+        let hasDraft = comment.replies.some(comment => {return comment.isDraft});
+
         return (
             <div
                 data-comment-id={comment.uuid}
+                data-is-active={this.props.isActive}
                 data-y-offset={comment.y_offset}
-                className={comment.replyTo ? 'adnotatio-commentbar-comment-reply' : ('adnotatio-commentbar-comment' + (comment.isOrphan ? ' adnotatio-commentbar-orphan': ''))}
-                // onClick={this.props.onClick}
+                className={
+                    (comment.replyTo
+                        ? 'adnotatio-commentbar-comment-reply'
+                        : ('adnotatio-commentbar-comment' +
+                            (
+                                comment.isOrphan
+                                ? ' adnotatio-commentbar-orphan'
+                                : ''
+                            )
+                        )
+                    )
+                }
+                onClick={comment.replyTo ? undefined : greedyHandler(!this.props.isActive ? this.props.onActivate : undefined)}
                 onMouseOver={this.props.onMouseOver}
                 onMouseOut={this.props.onMouseOut}
             >
+                {this.props.isActive &&
+                    <div className='adnotatio-commentbar-comment-arrow-outline'>
+                        <div className='adnotatio-commentbar-comment-arrow-body' />
+                    </div>
+                }
                 <CommentHeader comment={comment} actionMain="Resolve" actionMainCallback={() => this.onResolve()}/>
                 {comment.annotations.length > 0 &&
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
@@ -91,17 +116,19 @@ export default class CommentBox extends React.Component {
                     <>
                         <TextArea autoFocus useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => {comment.text = e.target.value}}
                         defaultValue={comment.text} onKeyDown={(e) => {if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {comment.text = e.target.value; this.onSave()}}}/>
-                        <button className="adnotation-commentbar-comment-save" onClick={this.onSave}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={this.onDiscard}>Cancel</button>
+                        <button className="adnotation-commentbar-comment-save" onClick={greedyHandler(this.onSave)}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={greedyHandler(this.onDiscard)}>Cancel</button>
                     </>
                     :
-                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={() => {this.setState({edit: true})}}/>
+                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive ? () => {this.setState({edit: true})} : undefined}/>
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
                     {comment.replies.map(reply => {
                         return <CommentBox key={reply.uuid} comment={reply} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
                     })}
-                    {this.props.onCommentReply &&
-                        <button className='adnotatio-commentbar-comment-reply-button' onClick={() => this.props.onCommentReply(comment.uuid)}>Reply</button>
+                    {this.props.isActive && !hasDraft && this.props.onCommentReply &&
+                        <div className='adnotatio-commentbar-comment-replyplaceholder'>
+                            <input type='text' placeholder='Reply..' onClick={greedyHandler(() => this.props.onCommentReply(comment.uuid))}/>
+                        </div>
                     }
                 </div>
 

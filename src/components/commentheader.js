@@ -1,5 +1,7 @@
 import React from 'react';
 
+import {greedyHandler} from '../utils.js';
+
 export default class CommentHeader extends React.PureComponent {
 
     render() {
@@ -16,7 +18,7 @@ export default class CommentHeader extends React.PureComponent {
                 </span>
                 {!comment.replyTo &&
                     <button className='adnotatio-commentbar-comment-resolve'
-                        onClick={(e) => {e.stopPropagation(); this.props.actionMainCallback()}}>
+                        onClick={greedyHandler(this.props.actionMainCallback)}>
                         {this.props.actionMain}
                     </button>
                 }

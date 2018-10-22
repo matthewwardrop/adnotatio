@@ -99,8 +99,8 @@ export default class Adnotatio extends React.Component {
 
     render() {
         return (
-            <div className='adnotatio-wrapper'>
-                <div className='adnotatio-document-wrapper' ref={this.wrapper}>
+            <div className='adnotatio-wrapper' ref={this.wrapper} onClick={this.onDocumentClick}>
+                <div className='adnotatio-document-wrapper'>
                     <button className="adnotatio-comment-button" ref={this.commentButton} onClick={this.onCommentCreate} style={{display: "none"}}>🗩</button>
                     <div className="adnotatio-document-bg" ref={this.bglayer} />
                     <div className="adnotatio-document-main" ref={this.document} onMouseUp={this.onDocumentMouseUp}>
@@ -132,6 +132,8 @@ export default class Adnotatio extends React.Component {
 
     onDocumentClick = (e) => {
         // Add annotation for image. // TODO!
+        if (this.commentbar.current !== null)
+            this.commentbar.current.activateComment(null);
     }
 
     onDocumentMouseUp = (e) => {
@@ -204,7 +206,6 @@ export default class Adnotatio extends React.Component {
         if (action == 'discard') {
             this.storage.discard(comment);
         } else if (action == 'update') {
-            console.log(comment);
             if (comment.isDraft) {
                 this.storage.add(comment);
             } else {
@@ -216,23 +217,12 @@ export default class Adnotatio extends React.Component {
     }
 
     onCommentReply = (host_uuid) => {
-
         if (!this.storage.exists(host_uuid)) {
             throw "Invalid comment: " + e.target.dataset.commentId
         }
 
         let reply = new Comment({replyTo: host_uuid});
-        console.log(reply);
         this.storage.stage(reply);
-        // let hostComment = this.storage.get(host_uuid);
-        //
-        // if (!hostComment) {
-        //     throw "Invalid comment: " + e.target.dataset.commentId
-        // }
-        //
-        // hostComment.addReply(reply);
-        //
-        // this.storage.update(hostComment);
     }
 
     focusAnnotations = (uuid) => {
@@ -248,7 +238,8 @@ export default class Adnotatio extends React.Component {
     }
 
     onAnnotationClick = (uuid) => {
-        // focus comment
+        // activate comment
+        this.commentbar.current.activateComment(uuid);
     }
 
     onAnnotationMouseOver = (uuid) => {
