@@ -87,6 +87,7 @@
                 width: 100%;
                 box-sizing: border-box;
                 resize: none;
+                padding: 5px;
             }
 
             &[data-focussed="true"], &:hover {
@@ -155,6 +156,7 @@
             .adnotatio-commentbar-comment-text {
                 white-space: pre-wrap;
                 word-break: break-word;
+                display: block;
             }
 
             .adnotatio-commentbar-comment-replies {
@@ -200,15 +202,24 @@
                 }
             }
 
-            .adnotation-commentbar-comment-save {
-                background-color: rgb(77, 144, 254);
-                background-image: -webkit-linear-gradient(top, rgb(77, 144, 254), rgb(71, 135, 237));
-                border: 1px solid rgb(48, 121, 237);
+            .adnotation-commentbar-comment-save, .adnotation-commentbar-comment-discard {
                 border-radius: 2px;
                 padding: 5px;
                 margin: 2px;
                 color: #fff;
                 min-width: 54px;
+            }
+
+            .adnotation-commentbar-comment-save {
+                background-color: rgb(77, 144, 254);
+                background-image: -webkit-linear-gradient(top, rgb(77, 144, 254), rgb(71, 135, 237));
+                border: 1px solid rgb(48, 121, 237);
+            }
+
+            .adnotation-commentbar-comment-discard {
+                background-color: rgb(251, 178, 173);
+                background-image: -webkit-linear-gradient(top, rgb(251, 178, 173), rgb(194, 99, 93));
+                border: 1px solid rgb(194, 99, 93);
             }
 
             .adnotatio-commentbar-latex-error {

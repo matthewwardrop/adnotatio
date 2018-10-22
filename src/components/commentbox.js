@@ -123,7 +123,7 @@ export default class CommentBox extends React.Component {
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
                     {comment.replies.map(reply => {
-                        return <CommentBox key={reply.uuid} comment={reply} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
+                        return <CommentBox key={reply.uuid} comment={reply} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
                     })}
                     {this.props.isActive && !hasDraft && this.props.onCommentReply &&
                         <div className='adnotatio-commentbar-comment-replyplaceholder'>
