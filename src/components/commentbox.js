@@ -26,16 +26,8 @@ export default class CommentBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            comment: this.props.comment.copy(),
-            edit: this.props.comment.isDraft
+            draft: this.props.comment.isDraft ? this.props.comment.copy() : undefined
         };
-    }
-
-    componentWillReceiveProps(nextProps) {
-        this.setState({
-            comment: nextProps.comment.copy(),
-            edit: nextProps.comment.isDraft
-        });
     }
 
     renderCommentString = (comment) => {
@@ -62,24 +54,33 @@ export default class CommentBox extends React.Component {
         });
     }
 
+    get comment() {
+        return this.state.draft || this.props.comment;
+    }
+
+    onEdit = () => {
+        let comment = this.props.comment.copy();
+        this.setState({draft: comment});
+    }
+
     onSave = () => {
-        this.props.onChange('update', this.state.comment);
+        this.props.onChange('update', this.comment);
+        this.setState({draft: null});
     }
 
     onDiscard = () => {
-        if (this.state.comment.isDraft) {
-            this.props.onChange('discard', this.state.comment);
+        if (this.comment.isDraft) {
+            this.props.onChange('discard', this.comment);
         } else {
             this.setState({
-                comment: this.props.comment.copy(),
-                edit: false
+                draft: undefined
             })
         }
     }
 
     onResolve = () => {
-        this.state.comment.isResolved = true;
-        this.props.onChange('update', this.state.comment);
+        this.comment.isResolved = true;
+        this.props.onChange('update', this.comment);
     }
 
     componentDidUpdate() {
@@ -87,7 +88,7 @@ export default class CommentBox extends React.Component {
     }
 
     render() {
-        let comment = this.state.comment;
+        let comment = this.comment;
 
         let hasDraft = comment.replies.some(comment => {return comment.isDraft});
 
@@ -111,6 +112,7 @@ export default class CommentBox extends React.Component {
                 onClick={comment.replyTo ? undefined : greedyHandler(!this.props.isActive ? this.props.onActivate : undefined)}
                 onMouseOver={this.props.onMouseOver}
                 onMouseOut={this.props.onMouseOut}
+                style={comment.isDraft ? {transition: 'none'} : null}
             >
                 {this.props.isActive &&
                     <div className='adnotatio-commentbar-comment-arrow-outline'>
@@ -121,14 +123,14 @@ export default class CommentBox extends React.Component {
                 {comment.annotations.length > 0 &&
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
                 }
-                {this.state.edit ?
+                {this.state.draft ?
                     <>
                         <TextArea autoFocus useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => {comment.text = e.target.value}}
                         defaultValue={comment.text} onKeyDown={(e) => {if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {comment.text = e.target.value; this.onSave()}}}/>
                         <button className="adnotation-commentbar-comment-save" onClick={greedyHandler(this.onSave)}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={greedyHandler(this.onDiscard)}>Cancel</button>
                     </>
                     :
-                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive ? () => {this.setState({edit: true})} : undefined}/>
+                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive ? this.onEdit : undefined}/>
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
                     {comment.replies.map(reply => {
