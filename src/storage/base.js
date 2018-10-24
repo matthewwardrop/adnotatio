@@ -1,13 +1,62 @@
 'use strict';
 
 import Comment from '../comment';
-import {NotImplementedError} from '../util/errors';
+import {CommentAlreadyExists, CommentDoesNotExist, NotImplementedError} from '../util/errors';
+
+
+class CommentCache {
+
+    static fromCache(cache) {
+        let newCache = new CommentCache();
+        cache.toArray().forEach(comment => newCache.add_or_update(comment));
+        return newCache;
+    }
+
+    constructor() {
+        this.comments = {}
+    }
+
+    clear = () => {
+        this.comments = {};
+    }
+
+    has = (uuid) => {
+        return this.comments.hasOwnProperty(uuid);
+    }
+
+    add_or_update = (comment) => {
+        this.comments[comment.uuid] = comment;
+    }
+
+    get = (uuid) => {
+        return this.comments[uuid];
+    }
+
+    toArray = () => {
+        return Object.values(this.comments);
+    }
+
+    pop = (uuid) => {
+        try {
+            return this.comments[uuid];
+        } finally {
+            delete this.comments[uuid];
+        }
+    }
+
+    union = (otherCache) => {
+        otherCache.toArray().forEach(comment => this.add_or_update(comment));
+    }
+
+}
+
 
 export default class CommentStorage {
 
     constructor(authority, documentId, documentVersion, documentMetadata) {
-        this.comments = []
-        this.staged = []
+        this._cache = new CommentCache();
+        this._stage = new CommentCache();
+        this.notifyCallback = null;
 
         this.context = {
             authority: authority,
@@ -17,112 +66,117 @@ export default class CommentStorage {
         }
     }
 
-    connect = (onUpdateCallback) => {
-        throw new NotImplementedError();
+    connect = (callback) => {
+        this.notifyCallback = callback;
+        this.onConnect();
+        this.load();
     }
 
     disconnect = () => {
-        throw new NotImplementedError();
+        this.notifyCallback = null;
+        this.onDisconnect();
     }
+
+    // Event handlers
+    notify = () => {
+        if (this.notifyCallback) {
+            let comments = CommentCache.fromCache(this._cache);
+            comments.union(this._stage);
+            this.notifyCallback(comments.toArray());
+        }
+    }
+
+    // Imperative actions
 
     load = () => {
-        throw new NotImplementedError();
+        this.onLoad((comments) => {
+            this._cache.clear();
+            comments.forEach(comment => {
+                this._cache.add_or_update(comment);
+            })
+            this.notify();
+        })
     }
 
-    sync = (force=false) => {
-        throw new NotImplementedError();
+    sync = () => {
+        this.onSync((newComments) => {
+            newComments.forEach(comment => {
+                this._cache.add_or_update(comment);
+            });
+            this.notify();
+        });
     }
 
     get = (uuid) => {
         uuid = this._get_uuid(uuid);
-        for (let i = 0; i < this.comments.length; i++) {
-            let comment = this.comments[i];
-            if (comment.uuid == uuid) {
-                return comment;
-            }
-        }
-        return null;
+        return this._stage.get(uuid) || this._cache.get(uuid);
     }
 
     exists = (uuid) => {
         uuid = this._get_uuid(uuid);
-        for (let i = 0; i < this.comments.length; i++) {
-            let comment = this.comments[i];
-            if (comment.uuid == uuid) {
-                return true;
-            }
-        }
-        return null;
-    }
-
-    update = (comment) => {
-        throw new NotImplementedError();
+        return this._stage.has(uuid) || this._cache.has(uuid);
     }
 
     add = (comment) => {
-        throw new NotImplementedError();
+        if (this._cache.has(comment)) throw new CommentAlreadyExists(comment.uuid);
+
+        comment.isDraft = false;
+        this._stage.add_or_update(comment);
+
+        this.onSubmit(comment, (success) => {
+            if (success) {
+                this._cache.add_or_update(comment);
+                this._stage.pop(comment.uuid);
+                this.notify();
+            }
+        })
     }
 
-    resolve = (uuid) => {
-        throw new NotImplementedError();
-    }
+    update = (comment) => {
+        if (!this.exists(comment)) throw new CommentDoesNotExist(comment.uuid);
 
-    archive = (uuid) => {
-        throw new NotImplementedError();
+        this._stage.add_or_update(comment);
+
+        this.add(comment);
     }
 
     // Drafts
 
     stage = (comment) => {
-        let index = this._get_comment_index(comment, this.staged);
-
-        if (index > -1) {
-            throw new CommentAlreadyExists(comment.uuid);
-        }
         comment.isDraft = true;
-        this.staged.push(comment);
-
-        this.sync(true);
+        this._stage.add_or_update(comment);
+        this.notify();
     }
 
     commit = (uuid) => {
         uuid = this._get_uuid(uuid);
-        let index = this._get_comment_index(uuid, this.staged);
+        let comment = this._stage.get(uuid);
 
-        if (index == -1) {
-            throw new CommentDoesNotExist(comment.uuid);
-        }
+        if (!comment) throw new CommentDoesNotExist(uuid);
 
-        let comment = this.staged[index];
-
-        this.discard(comment)
-        this.add(comment)
+        return this.add(comment);
     }
 
     discard = (uuid) => {
         uuid = this._get_uuid(uuid);
-        let index = this._get_comment_index(uuid, this.staged);
+        let comment = this._stage.get(uuid);
 
-        if (index == -1) {
-            throw new CommentDoesNotExist(comment.uuid);
-        }
+        if (!comment) throw new CommentDoesNotExist(uuid);
 
-        this.staged.splice( index, 1 )
-        this.sync(true);
+        this._stage.pop(uuid);
+        this.notify();
     }
 
     _get_uuid = (comment_uuid) => {
         return comment_uuid instanceof Comment ? comment_uuid.uuid : comment_uuid;
     }
 
-    _get_comment_index = (comment_uuid, comments=null) => {
-        comments = comments || this.comments;
-        comment_uuid = this._get_uuid(comment_uuid);
-        for (let i = 0; i < comments.length; i++) {
-            let comment = comments[i];
-            if (comment.uuid == comment_uuid) return i;
-        }
-        return -1;
-    }
+    // Hooks for subclasses to modify behaviour
+    onConnect = () => {}
+    onDisconnect = () => {}
+
+    onLoad = (callback) => {}
+    onSync = (callback) => {}
+    onSubmit = (comment, callback) => {}
 
 }
