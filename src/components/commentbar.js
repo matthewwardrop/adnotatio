@@ -12,8 +12,7 @@ export default class CommentBar extends React.Component {
         this.commentAttributes = {}
         this.commentContainer = React.createRef();
 
-        let comment = this.props.comments.find((comment) => {return comment.isDraft});
-
+        let comment = this.props.comments.find((comment) => comment.isDraft);
         this.state = {activeComment: comment ? comment.uuid : null};
     }
 
@@ -143,7 +142,7 @@ export default class CommentBar extends React.Component {
         return <div className="adnotatio-commentbar" ref={this.commentContainer}>
             {this.props.comments.map(comment => {
                 return <CommentBox
-                        isActive={comment.uuid === this.state.activeComment}
+                        isActive={comment.uuid === this.state.activeComment || comment.isDraft}
                         key={comment.uuid}
                         comment={comment}
                         onActivate={() => {this.activateComment(comment.uuid)}}
