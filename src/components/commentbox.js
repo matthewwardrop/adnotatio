@@ -31,7 +31,7 @@ export default class CommentBox extends React.Component {
     }
 
     renderCommentString = (comment) => {
-        return Underscore.escape(comment).replace(/(?:\$\$(.*?)\$\$)|(?:\\\[(.*?)\\\])|(?:\$(.*?)\$)|(?:\\\((.*?)\\\))/g, function(outer, inner1, inner2, inner3, inner4, offset, string) {
+        return Underscore.escape(comment).replace(/(?:\$\$(.*?)\$\$)|(?:\\\[(.*?)\\\])|(?:\$(.*?)\$)|(?:\\\((.*?)\\\))/gs, function(outer, inner1, inner2, inner3, inner4, offset, string) {
             let displayMode = !!(inner1 || inner2);
             let inner = Underscore.unescape(inner1 || inner2 || inner3 || inner4);
 
@@ -45,10 +45,10 @@ export default class CommentBox extends React.Component {
                     throw e;
                 }
             }
-        }).replace(/&#x60;&#x60;&#x60;(.*?)&#x60;&#x60;&#x60;/, function (outer, inner, offset, string) {
+        }).replace(/&#x60;&#x60;&#x60;(.*?)&#x60;&#x60;&#x60;/gs, function (outer, inner, offset, string) {
             let highlighted = HighlightJs.highlightAuto(inner);
             return `<code language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
-        }).replace(/&#x60;(.*?)&#x60;/, function (outer, inner, offset, string) {
+        }).replace(/&#x60;(.*?)&#x60;/gs, function (outer, inner, offset, string) {
             let highlighted = HighlightJs.highlightAuto(inner);
             return `<code class='inline' language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
         });
