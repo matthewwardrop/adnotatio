@@ -6,10 +6,9 @@ import Comment from '../comment';
 import CommentHeader from './commentheader';
 import Underscore from 'underscore';
 import HighlightJs from 'highlight.js';
-import 'highlight.js/styles/github.css'
+import 'highlight.js/styles/github.css';
 
-
-import {greedyHandler} from '../utils.js';
+import {greedyHandler} from '../utils/handlers';
 
 
 export default class CommentBox extends React.Component {

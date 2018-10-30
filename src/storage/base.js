@@ -1,7 +1,7 @@
 'use strict';
 
 import Comment from '../comment';
-import {CommentAlreadyExists, CommentDoesNotExist, NotImplementedError} from '../util/errors';
+import {CommentAlreadyExists, CommentDoesNotExist, NotImplementedError} from '../utils/errors';
 
 
 class CommentCache {
@@ -56,23 +56,19 @@ export default class CommentStorage {
     constructor(authority, documentId, documentVersion, documentMetadata) {
         this._cache = new CommentCache();
         this._stage = new CommentCache();
+        this.context = null;
         this.notifyCallback = null;
-
-        this.context = {
-            authority: authority,
-            documentId: documentId,
-            documentVersion: documentVersion,
-            documentMetadata: documentMetadata
-        }
     }
 
-    connect = (callback) => {
+    connect = (context, callback) => {
+        this.context = context,
         this.notifyCallback = callback;
         this.onConnect();
         this.load();
     }
 
     disconnect = () => {
+        this.context = null;
         this.notifyCallback = null;
         this.onDisconnect();
     }
@@ -141,6 +137,10 @@ export default class CommentStorage {
     }
 
     // Drafts
+
+    create = (state) => {
+        return new Comment({context: this.context, ...state});
+    }
 
     stage = (comment) => {
         comment.isDraft = true;

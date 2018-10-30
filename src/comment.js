@@ -1,21 +1,27 @@
+'use strict';
+
 const uuid = require('uuid/v4');
 
-import TextAnnotation from './annotations/text';
+import DomHighlightAnnotation from './annotations/dom_highlight';
 const uuid_v4 = require('uuid/v4');
 
 export default class Comment {
 
-    constructor({uuid=null, replyTo=null, text=null, annotations=null,
-                 authorName=null, authorEmail=null, tsCreated=null, tsUpdated=null,
+    constructor({uuid=null, replyTo=null, context=null, text=null, annotations=null,
+                 authorName=null, authorEmail=null, authorAvatar=null, tsCreated=null, tsUpdated=null,
                  isResolved=false, isArchived=false, isDraft=false, replies=null}={}) {
         this.uuid = uuid || uuid_v4();
         this.replyTo = replyTo;
+
+        this.context = context;
 
         this.text = text || "";
         this.annotations = annotations || [];
 
         this.authorName = authorName;
         this.authorEmail = authorEmail;
+        this.authorAvatar = authorAvatar;
+
         this.tsCreated = tsCreated || new Date().getTime();
         this.tsUpdated = tsUpdated || new Date().getTime();
 
@@ -31,12 +37,14 @@ export default class Comment {
         return new Comment({
             uuid: json.uuid,
             replyTo: json.replyTo,
+            context: json.context,
             text: json.text,
             annotations: (json.annotations || []).map(annotation => {
-                return TextAnnotation.fromSpec(annotation);
+                return DomHighlightAnnotation.fromSpec(annotation);
             }),
             authorName: json.authorName,
             authorEmail: json.authorEmail,
+            authorAvatar: json.authorAvatar,
             tsCreated: json.tsCreated,
             tsUpdated: json.tsUpdated,
             isResolved: json.isResolved,
@@ -52,10 +60,12 @@ export default class Comment {
         let json = {
             uuid: this.uuid,
             replyTo: this.replyTo,
+            context: this.context,
             text: this.text,
             annotations: this.annotations.map(annotation => {return annotation.toJSON()}),
             authorName: this.authorName,
             authorEmail: this.authorEmail,
+            authorAvatar: this.authorAvatar,
             tsCreated: this.tsCreated,
             tsUpdated: this.tsUpdated,
             isResolved: this.isResolved,

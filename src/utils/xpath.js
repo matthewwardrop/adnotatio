@@ -27,34 +27,3 @@ export function getXPath(element, root=document.body) {
     }
     return nodePath;
 }
-
-export function getDocumentOffset(el) {
-    const rect = el.getBoundingClientRect();
-    let scrollX = window.scrollX;
-    let scrollY = window.scrollY;
-    do {
-        scrollX += el.scrollLeft || 0;
-        scrollY += el.scrollTop || 0;
-        el = el.parentNode;
-    } while (el);
-    return {
-        top: rect.top + scrollY,
-        left: rect.left + scrollX
-    }
-}
-
-export function getViewportOffset(el) {
-    const rect = el.getBoundingClientRect();
-    return {
-        top: rect.top,
-        left: rect.left
-    }
-}
-
-export function greedyHandler(func, ...args) {
-    if (func === undefined) func = () => {};
-    return function (e) {
-        e.stopPropagation();
-        func(...args);
-    };
-}

@@ -1,9 +1,11 @@
 'use strict';
 
 import Annotation from './base';
-import {getViewportOffset, getXPath, greedyHandler} from '../utils.js';
+import {greedyHandler} from '../utils/handlers';
+import {getViewportOffset} from '../utils/offset';
+import {getXPath} from '../utils/xpath';
 
-export default class TextAnnotation extends Annotation {
+export default class DomHighlightAnnotation extends Annotation {
 
     static TYPE = 'text';
 

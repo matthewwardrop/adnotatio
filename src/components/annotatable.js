@@ -2,27 +2,43 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import LocalCommentStorage from './storage/local';
-import CommentBar from './components/commentbar'
-import TextAnnotation from './annotations/text';
-import Comment from './comment';
-import {getViewportOffset} from './utils';
-import './base.less';
 
-module.exports = Adnotatio;
+import CommentStorage from '../storage/base';
+import LocalCommentStorage from '../storage/local';
+import DomHighlightAnnotation from '../annotations/dom_highlight';
+import {getViewportOffset} from '../utils/offset';
 
-export default class Adnotatio extends React.Component {
+import CommentBar from './commentbar';
+
+
+export default class Annotatable extends React.Component {
 
     static propTypes = {
         authority: PropTypes.string,
         documentId: PropTypes.string,
         documentVersion: PropTypes.string,
-        documentMetadata: PropTypes.object,
-        useKaTeX: PropTypes.bool
+        documentAuthorEmails: PropTypes.arrayOf(PropTypes.string),
+        useKaTeX: PropTypes.bool,
+        storage: (props, propName, componentName) => {
+            if (props[propName] !== null && !props[propName] instanceof CommentStorage) {
+                return new Error(
+                    'Invalid prop `' + propName + '` supplied to' +
+                    ' `' + componentName + '`. Must be an instance of CommentStorage or null.'
+                );
+            }
+        }
     }
 
     constructor(props) {
         super(props);
+
+        // Document context
+        this.documentContext = {
+            authority: this.props.authority,
+            documentId: this.props.documentId,
+            documentVersion: this.props.documentVersion,
+            documentAuthorEmails: this.props.documentAuthorEmails
+        }
 
         // DOM references
         this.wrapper = React.createRef();
@@ -32,10 +48,7 @@ export default class Adnotatio extends React.Component {
         this.commentbar = React.createRef();
         this.commentButton = React.createRef();
 
-        this.storage = new LocalCommentStorage(
-            this.props.authority, this.props.documentId,
-            this.props.documentVersion, this.props.documentMetadata
-        );
+        this.storage = this.props.storage || new LocalCommentStorage();
 
         this.state = {'comments': []}
     }
@@ -44,7 +57,7 @@ export default class Adnotatio extends React.Component {
 
     componentDidMount() {
       window.addEventListener('resize', this.onWindowResize);
-      this.storage.connect(this.onCommentsUpdate);
+      this.storage.connect(this.documentContext, this.onCommentsUpdate);
       this.componentDidUpdate();
       try {
           this.mutationObserver = new window.MutationObserver(this.onDocumentUpdate);
@@ -109,13 +122,8 @@ export default class Adnotatio extends React.Component {
                     <div className="adnotatio-document-fg" ref={this.fglayer} />
                 </div>
                 {this.state.comments.length > 0 &&
-                    <>
                     <CommentBar comments={this.state.comments} onCommentChange={this.onCommentChange} onCommentReply={this.onCommentReply} focusAnnotations={this.focusAnnotations} unfocusAnnotations={this.unfocusAnnotations} ref={this.commentbar} />
-                    <button onClick={() => {window.localStorage.clear(); this.storage.comments=[]; this.setState({comments: []})}}><span style={{display: 'inline-block', transform: 'rotate(90deg)', transformOrigin: 'center center', whiteSpace: 'pre', width: '1em', textAlign: 'center'}}>Clear All Comments</span></button>
-                    </>
                 }
-
-
             </div>
         );
     }
@@ -159,12 +167,12 @@ export default class Adnotatio extends React.Component {
             return;
         }
 
-        let comment = new Comment("", 'Anonymous');
+        let comment = this.storage.create();
         comment.isDraft = true;
 
         for (let i = 0; i < selection.rangeCount; i++) {
             let range = selection.getRangeAt(i);
-            comment.addAnnotation(TextAnnotation.fromRange(range, this.document.current));
+            comment.addAnnotation(DomHighlightAnnotation.fromRange(range, this.document.current));
         }
 
         this.storage.stage(comment);
@@ -221,7 +229,7 @@ export default class Adnotatio extends React.Component {
             throw "Invalid comment: " + e.target.dataset.commentId
         }
 
-        let reply = new Comment({replyTo: host_uuid});
+        let reply = this.storage.create({replyTo: host_uuid});
         this.storage.stage(reply);
     }
 

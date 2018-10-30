@@ -78,9 +78,41 @@
                 align-items: center;
 
                 .adnotatio-commentbar-comment-header-avatar {
-                    background: #aaa;
                     width: 30px;
                     height: 30px;
+                    background-size: cover !important;
+                    border-radius: 15px;
+                    border: 1px solid #aaa;
+                    background: #000;
+                }
+
+                .adnotatio-commentbar-comment-metadata {
+                    opacity: 0.5;
+                    font-size: small;
+                    display: block;
+                    display: flex;
+                    flex-direction: column;
+                    align-self: center;
+                    padding: 0px 5px 0px 5px;
+                    flex-grow: 1;
+                    flex-shrink: 1;
+
+                    .adnotatio-commentbar-comment-author {
+                        text-overflow: ellipsis;
+                        a {
+                            color: inherit;
+                        }
+                    }
+                }
+
+                .adnotatio-commentbar-comment-resolve {
+                    font-size: small;
+                    border-radius: 2px;
+                    padding: 5px;
+                    color: #fff;
+                    min-width: 54px;
+                    border: 1px solid #aaa;
+                    color: #000;
                 }
 
             }
@@ -137,20 +169,6 @@
 
             &[data-focussed="true"] {
                 animation: adnotatio-comment-wiggle 0.1s 2 linear;
-            }
-
-            .adnotatio-commentbar-comment-author {
-                opacity: 0.5;
-                font-size: small;
-                display: block;
-
-                // &::after {
-                //     content: " wrote:"
-                // }
-            }
-
-            .adnotatio-commentbar-comment-resolve {
-                font-size: small;
             }
 
             .adnotatio-commentbar-comment-highlighted {

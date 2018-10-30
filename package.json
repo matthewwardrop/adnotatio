@@ -14,6 +14,7 @@
     "author": "Matthew Wardrop",
     "license": "MIT",
     "dependencies": {
+        "date-format-lite": "^17.7.0",
         "highlight.js": "^9.13.1",
         "katex": "^0.10.0-rc.1",
         "prop-types": "^15.6.2",

@@ -2,7 +2,7 @@
 
 import Comment from '../comment';
 import CommentStorage from './base';
-import {CommentAlreadyExists, CommentDoesNotExist} from '../util/errors';
+import {CommentAlreadyExists, CommentDoesNotExist} from '../utils/errors';
 
 export default class LocalCommentStorage extends CommentStorage {
 
