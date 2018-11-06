@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Adnotatio from 'adnotatio';
+import Adnotatio, { LocalCommentStorage } from 'adnotatio';
 import './App.css';
 import 'katex/dist/katex.min.css';
 
@@ -70,7 +70,7 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Adnotatio>
+        <Adnotatio storage={new LocalCommentStorage()}>
             <div className='document'>
                 <button onClick={(e) => {this.setState({docID: 1})}}>Version 1</button>
                 <button onClick={(e) => {this.setState({docID: 2})}}>Version 2</button><br />
