@@ -18,7 +18,9 @@ export default class Annotatable extends React.Component {
         documentId: PropTypes.string,
         documentVersion: PropTypes.string,
         documentAuthorEmails: PropTypes.arrayOf(PropTypes.string),
+
         useKaTeX: PropTypes.bool,
+
         storage: (props, propName, componentName) => {
             if (props[propName] !== null && !props[propName] instanceof CommentStorage) {
                 return new Error(
@@ -34,10 +36,10 @@ export default class Annotatable extends React.Component {
 
         // Document context
         this.documentContext = {
-            authority: this.props.authority,
-            documentId: this.props.documentId,
-            documentVersion: this.props.documentVersion,
-            documentAuthorEmails: this.props.documentAuthorEmails
+            authority: this.props.authority || null,
+            documentId: this.props.documentId || null,
+            documentVersion: this.props.documentVersion || null,
+            documentAuthorEmails: this.props.documentAuthorEmails || null
         }
 
         // DOM references

@@ -14,26 +14,26 @@ export default class LocalCommentStorage extends CommentStorage {
         window.removeEventListener('storage', this.sync);
     }
 
-    onLoad = (callback) => {
+    onLoad = () => {
         let comments = (
             (JSON.parse(window.localStorage.getItem('comments')) || [])
             .map(comment => {return Comment.fromJSON(comment)})
         );
-        callback(comments);
+        return comments;
     }
 
-    onSync = (callback) => {
+    onSync = () => {
         let comments = (
             (JSON.parse(window.localStorage.getItem('comments')) || [])
             .map(comment => {return Comment.fromJSON(comment)})
         );
-        callback(comments);
+        return comments;
     }
 
-    onSubmit = (comment, callback) => {
+    onSubmit = (comment) => {
         let comments = this._cache.toArray().concat([comment]);
         window.localStorage.setItem('comments', JSON.stringify(comments));
-        callback(true);
+        return true;
     }
 
 }

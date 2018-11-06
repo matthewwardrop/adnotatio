@@ -1,6 +1,7 @@
 'use strict';
 
 import Comment from '../comment';
+import {asPromise} from '../utils/handlers';
 import {CommentAlreadyExists, CommentDoesNotExist, NotImplementedError} from '../utils/errors';
 
 
@@ -53,24 +54,34 @@ class CommentCache {
 
 export default class CommentStorage {
 
-    constructor(authority, documentId, documentVersion, documentMetadata) {
+    constructor() {
         this._cache = new CommentCache();
         this._stage = new CommentCache();
         this.context = null;
+        this.author = {};
         this.notifyCallback = null;
     }
 
     connect = (context, callback) => {
         this.context = context,
         this.notifyCallback = callback;
-        this.onConnect();
-        this.load();
+
+        return asPromise(this.onConnect).then(this.load);
     }
 
     disconnect = () => {
         this.context = null;
         this.notifyCallback = null;
-        this.onDisconnect();
+
+        return asPromise(this.onDisconnect);
+    }
+
+    setAuthor = ({name=undefined, email=undefined, avatar=undefined} = {}) => {
+        this.author = {
+            name: name,
+            email: email,
+            avatar: avatar
+        }
     }
 
     // Event handlers
@@ -85,22 +96,32 @@ export default class CommentStorage {
     // Imperative actions
 
     load = () => {
-        this.onLoad((comments) => {
-            this._cache.clear();
-            comments.forEach(comment => {
-                this._cache.add_or_update(comment);
-            })
-            this.notify();
-        })
+        return (
+            asPromise(this.onLoad)
+            .then(
+                (comments) => {
+                    this._cache.clear();
+                    comments.forEach(comment => {
+                        this._cache.add_or_update(comment);
+                    })
+                    this.notify();
+                }
+            )
+        );
     }
 
     sync = () => {
-        this.onSync((newComments) => {
-            newComments.forEach(comment => {
-                this._cache.add_or_update(comment);
-            });
-            this.notify();
-        });
+        return (
+            asPromise(this.onSync)
+            .then(
+                (newComments) => {
+                    newComments.forEach(comment => {
+                        this._cache.add_or_update(comment);
+                    });
+                    this.notify();
+                }
+            )
+        );
     }
 
     get = (uuid) => {
@@ -117,15 +138,21 @@ export default class CommentStorage {
         if (this._cache.has(comment)) throw new CommentAlreadyExists(comment.uuid);
 
         comment.isDraft = false;
+        comment.context = this.context;
         this._stage.add_or_update(comment);
 
-        this.onSubmit(comment, (success) => {
-            if (success) {
-                this._cache.add_or_update(comment);
-                this._stage.pop(comment.uuid);
-                this.notify();
-            }
-        })
+        return (
+            asPromise(this.onSubmit, comment)
+            .then(
+                (success) => {
+                    if (success) {
+                        this._cache.add_or_update(comment);
+                        this._stage.pop(comment.uuid);
+                        this.notify();
+                    }
+                }
+            )
+        );
     }
 
     update = (comment) => {
@@ -133,13 +160,19 @@ export default class CommentStorage {
 
         this._stage.add_or_update(comment);
 
-        this.add(comment);
+        return this.add(comment);
     }
 
     // Drafts
 
     create = (state) => {
-        return new Comment({context: this.context, ...state});
+        return new Comment({
+            context: this.context,
+            authorName: this.author.name,
+            authorEmail: this.author.email,
+            authorAvatar: this.author.avatar,
+            ...state
+        });
     }
 
     stage = (comment) => {
@@ -175,8 +208,8 @@ export default class CommentStorage {
     onConnect = () => {}
     onDisconnect = () => {}
 
-    onLoad = (callback) => {}
-    onSync = (callback) => {}
-    onSubmit = (comment, callback) => {}
+    onLoad = () => {}
+    onSync = () => {}
+    onSubmit = (comment) => {}
 
 }
