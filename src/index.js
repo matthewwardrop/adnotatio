@@ -6,6 +6,7 @@ import Comment from './comment';
 import CommentStorage from './storage/base';
 import LocalCommentStorage from './storage/local';
 import RemoteCommentStorage from './storage/remote';
+import OAuthCommentStorage from './storage/oauth';
 
 import './base.less';
 
@@ -14,5 +15,6 @@ export {
     Comment,
     CommentStorage,
     LocalCommentStorage,
-    RemoteCommentStorage
+    RemoteCommentStorage,
+    OAuthCommentStorage
 };

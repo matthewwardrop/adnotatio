@@ -14,6 +14,9 @@
     "author": "Matthew Wardrop",
     "license": "MIT",
     "dependencies": {
+        "axios": "^0.18.0",
+        "axios-oauth-client": "^1.1.1",
+        "axios-token-interceptor": "^0.1.0",
         "date-format-lite": "^17.7.0",
         "highlight.js": "^9.13.1",
         "katex": "^0.10.0-rc.1",
@@ -45,6 +48,7 @@
         "rollup": "^0.66.6",
         "rollup-plugin-babel": "^4.0.3",
         "rollup-plugin-commonjs": "^9.2.0",
+        "rollup-plugin-json": "^3.1.0",
         "rollup-plugin-node-resolve": "^3.4.0",
         "rollup-plugin-postcss": "^1.6.2",
         "rollup-plugin-uglify": "^6.0.0"
