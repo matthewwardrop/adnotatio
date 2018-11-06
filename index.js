@@ -1,7 +1,16 @@
 'use strict';
 
-if (process.env.NODE_ENV === 'production') {
-  module.exports = require('./dist/adnotatio.min.js');
+let m;
+if (process.env.NODE_ENV !== 'production') {
+    m = require('./dist/adnotatio.js');
 } else {
-  module.exports = require('./dist/adnotatio.js');
+    m = require('./dist/adnotatio.min.js');
 }
+
+module.exports = {
+    Comment: m.Comment,
+    CommentStorage: m.CommentStorage,
+    LocalCommentStorage: m.LocalCommentStorage,
+    RemoteCommentStorage: m.RemoteCommentStorage,
+    OAuthCommentStorage: m.OAuthCommentStorage
+};
