@@ -6,7 +6,6 @@ import Comment from '../comment';
 import CommentHeader from './commentheader';
 import Underscore from 'underscore';
 import HighlightJs from 'highlight.js';
-import 'highlight.js/styles/github.css';
 
 import {greedyHandler} from '../utils/handlers';
 

@@ -1,8 +1,6 @@
 import React from 'react';
 import Comment from '../comment';
-import CommentBox from './commentbox'
-
-import 'katex/dist/katex.min.css';
+import CommentBox from './commentbox';
 
 
 export default class CommentBar extends React.Component {
