@@ -3,13 +3,17 @@ import commonjs from 'rollup-plugin-commonjs';
 import babel from 'rollup-plugin-babel';
 import postcss from 'rollup-plugin-postcss';
 
+
+const dependencies = Object.keys(require('./package.json').dependencies);
+
 export default {
     input: 'src/index.js',
-    external: ['react'],
+    external: dependencies,
     output: [
         {
             file: 'dist/adnotatio.js',
-            format: 'cjs'
+            format: 'cjs',
+            name: 'adnotatio'
         }
     ],
     plugins: [

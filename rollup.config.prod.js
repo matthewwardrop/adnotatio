@@ -4,9 +4,12 @@ import babel from 'rollup-plugin-babel';
 import {uglify} from "rollup-plugin-uglify";
 import postcss from 'rollup-plugin-postcss';
 
+const dependencies = Object.keys(require('./package.json').dependencies);
+
+
 export default {
     input: 'src/index.js',
-    external: ['react'],
+    external: dependencies,
     output: [
         {
             file: 'dist/adnotatio.min.js',
