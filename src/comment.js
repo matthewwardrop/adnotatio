@@ -87,7 +87,7 @@ export default class Comment {
     // Attribute helpers
 
     asReply = (comment) => {
-        this.replyTo = comment.constructor.name === "Comment" ? comment.uuid : comment;
+        this.replyTo = comment.constructor.name === Comment.name ? comment.uuid : comment;
     }
 
     addReply = (reply) => {
