@@ -1,5 +1,6 @@
 'use strict';
 
+import {} from './components/icons';  // Initialise icon library
 import Annotatable from './components/annotatable';
 
 import Comment from './comment';

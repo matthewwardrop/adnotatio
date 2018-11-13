@@ -2,6 +2,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import CommentStorage from '../storage/base';
 import LocalCommentStorage from '../storage/local';
@@ -116,7 +117,7 @@ export default class Annotatable extends React.Component {
         return (
             <div className='adnotatio-wrapper' ref={this.wrapper} onClick={this.onDocumentClick}>
                 <div className='adnotatio-document-wrapper'>
-                    <button className="adnotatio-comment-button" ref={this.commentButton} onClick={this.onCommentCreate} style={{display: "none"}}>🗩</button>
+                    <button className="adnotatio-comment-button" ref={this.commentButton} onClick={this.onCommentCreate} style={{display: "none"}}><FontAwesomeIcon icon="comment-dots" /></button>
                     <div className="adnotatio-document-bg" ref={this.bglayer} />
                     <div className="adnotatio-document-main" ref={this.document} onMouseUp={this.onDocumentMouseUp}>
                         {this.props.children}

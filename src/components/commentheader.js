@@ -1,4 +1,6 @@
 import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 require("date-format-lite");
 
 import {greedyHandler} from '../utils/handlers';
@@ -11,9 +13,15 @@ export default class CommentHeader extends React.PureComponent {
 
     render() {
         let comment = this.props.comment;
+
         return <>
             <div className='adnotatio-commentbar-comment-header'>
-                <span className='adnotatio-commentbar-comment-header-avatar' style={{backgroundImage: 'url('+comment.authorAvatar+')'}} />
+                <span className='adnotatio-commentbar-comment-header-avatar'>
+                    {comment.authorAvatar === null
+                        ?<FontAwesomeIcon icon='user'/>
+                        :<img src={comment.authorAvatar} />
+                    }
+                </span>
                 <span className='adnotatio-commentbar-comment-metadata'>
                     <span className='adnotatio-commentbar-comment-author'>
                         {comment.authorEmail
@@ -27,8 +35,9 @@ export default class CommentHeader extends React.PureComponent {
                 </span>
                 {!comment.replyTo &&
                     <button className='adnotatio-commentbar-comment-resolve'
-                        onClick={greedyHandler(this.props.actionMainCallback)}>
-                        {this.props.actionMain}
+                        onClick={greedyHandler(this.props.actionMainCallback)}
+                        title='Resolve'>
+                        <FontAwesomeIcon icon='check'/>
                     </button>
                 }
             </div>
