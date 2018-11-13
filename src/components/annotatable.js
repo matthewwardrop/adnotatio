@@ -127,7 +127,7 @@ export default class Annotatable extends React.Component {
                     <div className="adnotatio-document-fg" ref={this.fglayer} />
                 </div>
                 {this.state.comments.length > 0 &&
-                    <CommentBar comments={this.state.comments} onCommentChange={this.onCommentChange} onCommentReply={this.onCommentReply} focusAnnotations={this.focusAnnotations} unfocusAnnotations={this.unfocusAnnotations} ref={this.commentbar} />
+                    <CommentBar comments={this.state.comments} currentAuthor={this.storage.author.email || null} onCommentChange={this.onCommentChange} onCommentReply={this.onCommentReply} focusAnnotations={this.focusAnnotations} unfocusAnnotations={this.unfocusAnnotations} ref={this.commentbar} />
                 }
             </div>
         );

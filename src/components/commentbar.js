@@ -151,6 +151,7 @@ export default class CommentBar extends React.Component {
                         isActive={comment.uuid === this.state.activeComment || comment.isDraft}
                         key={comment.uuid}
                         comment={comment}
+                        currentAuthor={this.props.currentAuthor}
                         onActivate={() => {this.activateComment(comment.uuid)}}
                         onCommentReply={() => {this.props.onCommentReply(comment.uuid)}}
                         onMouseOver={() => {this.props.focusAnnotations(comment.uuid)}}

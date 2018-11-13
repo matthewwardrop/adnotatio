@@ -128,11 +128,11 @@ export default class CommentBox extends React.Component {
                         <button className="adnotation-commentbar-comment-save" onClick={greedyHandler(this.onSave)}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={greedyHandler(this.onDiscard)}>Cancel</button>
                     </>
                     :
-                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive ? this.onEdit : undefined}/>
+                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive && this.props.currentAuthor === comment.authorEmail ? this.onEdit : undefined}/>
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
                     {comment.replies.sort((a,b) => a.ts_created - b.ts_created).map(reply => {
-                        return <CommentBox key={reply.uuid} comment={reply} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
+                        return <CommentBox key={reply.uuid} comment={reply} currentAuthor={this.props.currentAuthor} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
                     })}
                     {this.props.isActive && !hasDraft && this.props.onCommentReply &&
                         <div className='adnotatio-commentbar-comment-replyplaceholder'>
