@@ -8,7 +8,7 @@ import {greedyHandler} from '../utils/handlers';
 export default class CommentHeader extends React.PureComponent {
 
     renderDateString(date) {
-        return new Date(date).format('D MMM YYYY, HH:mm');
+        return new Date(date).format('D MMM YYYY, hh:mm');
     }
 
     render() {
