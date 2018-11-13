@@ -131,7 +131,7 @@ export default class CommentBox extends React.Component {
                     <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive ? this.onEdit : undefined}/>
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
-                    {comment.replies.map(reply => {
+                    {comment.replies.sort((a,b) => a.ts_created - b.ts_created).map(reply => {
                         return <CommentBox key={reply.uuid} comment={reply} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
                     })}
                     {this.props.isActive && !hasDraft && this.props.onCommentReply &&

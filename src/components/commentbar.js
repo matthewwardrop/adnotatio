@@ -14,9 +14,10 @@ export default class CommentBar extends React.Component {
         this.state = {activeComment: comment ? comment.uuid : null};
     }
 
-    setCommentAttributes(uuid, offset, isOrphan) {
+    setCommentAttributes({uuid, offsetX=0, offsetY=0, isOrphan=null}={}) {
         this.commentAttributes[uuid] = {
-            offset: offset,
+            offsetX: offsetX,
+            offsetY: offsetY,
             isOrphan: isOrphan
         }
     }
@@ -44,7 +45,8 @@ export default class CommentBar extends React.Component {
 
         elements.forEach(el => {
             if (this.commentAttributes.hasOwnProperty(el.dataset['commentId'])) {
-                el.dataset['yOffset'] = this.commentAttributes[el.dataset['commentId']].offset;
+                el.dataset['offsetX'] = this.commentAttributes[el.dataset['commentId']].offsetX;
+                el.dataset['offsetY'] = this.commentAttributes[el.dataset['commentId']].offsetY;
                 el.dataset['isOrphan'] = this.commentAttributes[el.dataset['commentId']].isOrphan;
                 if (el.dataset.isOrphan === 'true') {
                     orphanCount = orphanCount + 1;
@@ -74,12 +76,18 @@ export default class CommentBar extends React.Component {
                 return -1;
             }
 
-            if (parseFloat(a.dataset.yOffset) < parseFloat(b.dataset.yOffset)) {
+            if (parseFloat(a.dataset.offsetY) < parseFloat(b.dataset.offsetY)) {
                 return -1;
-            } else if (parseFloat(a.dataset.yOffset) > parseFloat(b.dataset.yOffset)) {
+            } else if (parseFloat(a.dataset.offsetY) > parseFloat(b.dataset.offsetY)) {
                 return 1;
             } else {
-                return 0;
+                if (parseFloat(a.dataset.offsetX) < parseFloat(b.dataset.offsetX)) {
+                    return -1;
+                } else if (parseFloat(a.dataset.offsetX) > parseFloat(b.dataset.offsetX)) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
         })
 
@@ -108,7 +116,7 @@ export default class CommentBar extends React.Component {
         // Elements above reference index need to be computed in reverse order
         elements.slice(0, referenceIndex+1).reverse().forEach(el => {
             let height = elementHeight(el);
-            let y_offset = Math.min(minAboveOffset - height, (el.dataset.yOffset || 0));
+            let y_offset = Math.min(minAboveOffset - height, (el.dataset.offsetY || 0));
             el.style.top = y_offset + 'px';
 
             minAboveOffset = y_offset;
@@ -116,7 +124,7 @@ export default class CommentBar extends React.Component {
 
         elements.slice(referenceIndex).forEach(el => {
 
-            let y_offset = Math.max(minBelowOffset, el.dataset.yOffset || 0);
+            let y_offset = Math.max(minBelowOffset, el.dataset.offsetY || 0);
             el.style.top = y_offset + 'px';
 
             if (el.className == 'adnotatio-commentbar-orphanheader') {

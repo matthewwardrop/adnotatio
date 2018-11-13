@@ -7,7 +7,7 @@ import {getXPath} from '../utils/xpath';
 
 export default class DomHighlightAnnotation extends Annotation {
 
-    static TYPE = 'text';
+    static TYPE = 'highlight_dom';
 
     isOrphaned = (root=document.body) => {
         return this.toRange(root) === null ? true : false;
@@ -34,11 +34,13 @@ export default class DomHighlightAnnotation extends Annotation {
         if (onmouseover) highlightContainer.onmouseover = onmouseover;
         if (onmouseout) highlightContainer.onmouseout = onmouseout;
 
+        let minOffsetX = Infinity;
         let minOffsetY = Infinity;
 
     	for (var i = 0; i != rects.length; i++) {
     		var rect = rects[i];
     		var highlightDiv = document.createElement('div');
+            minOffsetX = Math.min(minOffsetX, rect.left - rootOffset.left)
             minOffsetY = Math.min(minOffsetY, rect.top - rootOffset.top);
     		highlightDiv.style.top = (rect.top - rootOffset.top) + 'px';
     		highlightDiv.style.left = (rect.left - rootOffset.left) + 'px';
@@ -47,6 +49,7 @@ export default class DomHighlightAnnotation extends Annotation {
     		highlightContainer.appendChild(highlightDiv);
     	}
 
+        highlightContainer.dataset.minOffsetX = minOffsetX;
         highlightContainer.dataset.minOffsetY = minOffsetY;
 
         fglayer.appendChild(highlightContainer);

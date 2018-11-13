@@ -92,6 +92,7 @@ export default class Annotatable extends React.Component {
     renderAnnotations = () => {
         if (this.state.comments.length === 0) return;
         this.state.comments.forEach((comment) => {
+            let minOffsetX = Infinity;
             let minOffsetY = Infinity;
             let isOrphan = true;
             comment.annotations.forEach((annotation) => {
@@ -104,10 +105,11 @@ export default class Annotatable extends React.Component {
                 if (annotationElement) {
                     isOrphan = false;
                     annotationElement.dataset.commentId = comment.uuid;
+                    minOffsetX = Math.min(minOffsetX, parseFloat(annotationElement.dataset.minOffsetX));
                     minOffsetY = Math.min(minOffsetY, parseFloat(annotationElement.dataset.minOffsetY));
                 }
             })
-            this.commentbar.current.setCommentAttributes(comment.uuid, minOffsetY === Infinity ? 0 : minOffsetY, isOrphan);
+            this.commentbar.current.setCommentAttributes({uuid: comment.uuid, offsetX: minOffsetX, offsetY: minOffsetY === Infinity ? 0 : minOffsetY, isOrphan: isOrphan});
         })
 
         this.commentbar.current.renderOffsets();
@@ -179,7 +181,7 @@ export default class Annotatable extends React.Component {
         }
 
         this.storage.stage(comment);
-        this.commentbar.current.activateComment(comment.uuid);
+        if (this.commentbar.current) this.commentbar.current.activateComment(comment.uuid);
 
         this.commentButton.current.style.display = "none";
         this.commentButton.current.dataset.annotationType = null;
