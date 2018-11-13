@@ -143,8 +143,7 @@ export default class Annotatable extends React.Component {
 
     onDocumentClick = (e) => {
         // Add annotation for image. // TODO!
-        if (this.commentbar.current !== null)
-            this.commentbar.current.activateComment(null);
+        if (this.commentbar.current) this.commentbar.current.activateComment(null);
     }
 
     onDocumentMouseUp = (e) => {
@@ -161,6 +160,7 @@ export default class Annotatable extends React.Component {
     }
 
     onCommentCreate = (e) => {
+        e.stopPropagation();
         if (this.commentButton.current.dataset.annotationType !== 'text_highlight') {
             throw "Adnotatio only support textual highlights for now."
         }
@@ -179,6 +179,7 @@ export default class Annotatable extends React.Component {
         }
 
         this.storage.stage(comment);
+        this.commentbar.current.activateComment(comment.uuid);
 
         this.commentButton.current.style.display = "none";
         this.commentButton.current.dataset.annotationType = null;

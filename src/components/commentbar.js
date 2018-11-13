@@ -37,7 +37,7 @@ export default class CommentBar extends React.Component {
         })
     }
 
-    renderOffsets() {
+    renderOffsets = () => {
         let elements = [...this.commentContainer.current.children];
 
         let orphanCount = 0;

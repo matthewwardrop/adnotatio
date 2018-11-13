@@ -88,7 +88,7 @@ export default class CommentBox extends React.Component {
     render() {
         let comment = this.comment;
 
-        let hasDraft = comment.replies.some(comment => {return comment.isDraft});
+        let hasDraft = this.state.draft || comment.replies.some(comment => {return comment.isDraft});
 
         return (
             <div
@@ -136,7 +136,7 @@ export default class CommentBox extends React.Component {
                     })}
                     {this.props.isActive && !hasDraft && this.props.onCommentReply &&
                         <div className='adnotatio-commentbar-comment-replyplaceholder'>
-                            <input type='text' placeholder='Reply..' onClick={greedyHandler(() => this.props.onCommentReply(comment.uuid))}/>
+                            <input type='text' placeholder='Reply...' onClick={greedyHandler(() => this.props.onCommentReply(comment.uuid))}/>
                         </div>
                     }
                 </div>
