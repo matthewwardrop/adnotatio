@@ -8,6 +8,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 module.exports = {
+    __esModule: true,
     default: m.default,
     Comment: m.Comment,
     CommentStorage: m.CommentStorage,
