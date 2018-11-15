@@ -1,5 +1,8 @@
 'use strict';
 
+import {NotImplementedError} from '../utils/errors';
+
+
 export default class Annotation {
 
     // constructors
@@ -13,6 +16,8 @@ export default class Annotation {
             throw "Invalid annotation spec."
         }
     }
+
+    description() {}
 
     static fromSpec(spec) {
         return new this(spec);
@@ -34,6 +39,10 @@ export default class Annotation {
         return true;
     }
 
+    isOrphaned(root) {
+        throw new NotImplementedError();
+    }
+
     // converters
 
     toSpec() {
@@ -42,6 +51,16 @@ export default class Annotation {
 
     toJSON() {  // alias for toSpec
         return this.toSpec();
+    }
+
+    // rendering
+
+    render(root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) {
+        throw new NotImplementedError();
+    }
+
+    getBoundingBox(root, bglayer, fglayer) {
+        throw new NotImplementedError();
     }
 
 }

@@ -7,19 +7,10 @@ export default class CommentBar extends React.Component {
 
     constructor(props) {
         super(props);
-        this.commentAttributes = {}
         this.commentContainer = React.createRef();
 
-        let comment = this.props.comments.find((comment) => comment.isDraft);
+        let comment = Object.values(this.props.comments).find((comment) => comment.state.isDraft);
         this.state = {activeComment: comment ? comment.uuid : null};
-    }
-
-    setCommentAttributes({uuid, offsetX=0, offsetY=0, isOrphan=null}={}) {
-        this.commentAttributes[uuid] = {
-            offsetX: offsetX,
-            offsetY: offsetY,
-            isOrphan: isOrphan
-        }
     }
 
     activateComment = (uuid) => {
@@ -41,49 +32,54 @@ export default class CommentBar extends React.Component {
     renderOffsets = () => {
         let elements = [...this.commentContainer.current.children];
 
-        let orphanCount = 0;
+        let orphanCount = Object.values(this.props.comments).filter(el => el.state.isOrphan).length;
 
-        elements.forEach(el => {
-            if (this.commentAttributes.hasOwnProperty(el.dataset['commentId'])) {
-                el.dataset['offsetX'] = this.commentAttributes[el.dataset['commentId']].offsetX;
-                el.dataset['offsetY'] = this.commentAttributes[el.dataset['commentId']].offsetY;
-                el.dataset['isOrphan'] = this.commentAttributes[el.dataset['commentId']].isOrphan;
-                if (el.dataset.isOrphan === 'true') {
-                    orphanCount = orphanCount + 1;
-                }
+        let getState = (el) => {
+            let comment = this.props.comments[el.dataset.commentId];
+            if (comment && !comment.state.isOrphan) {
+                return {
+                    x: comment.state.annotationBBox.left,
+                    y: comment.state.annotationBBox.top,
+                    isOrphan: false
+                };
             }
-        })
+            return {isOrphan: true};
+        };
 
         // sort comments
         elements = elements.sort((a,b) => {
-            if (a.className == 'adnotatio-commentbar-orphan') {
-                if (b.dataset.isOrphan == 'true') {
-                    return 1;
-                } else {
+
+            let aState = getState(a);
+            let bState = getState(b);
+
+            if (a.className == 'adnotatio-commentbar-orphanheader') {
+                if (bState.isOrphan) {
                     return -1;
+                } else {
+                    return 1;
                 }
-            } else if (b.className == 'adnotatio-commentbar-orphan') {
-                if (a.dataset.isOrphan == 'true') {
-                    return 1;
-                } else {
+            } else if (b.className == 'adnotatio-commentbar-orphanheader') {
+                if (aState.isOrphan) {
                     return -1;
+                } else {
+                    return 1;
                 }
             }
 
-            if (a.dataset.isOrphan == 'true') {
+            if (aState.y === undefined) {
                 return 1;
-            } else if (b.dataset.isOrphan == 'true') {
+            } else if (bState.y === undefined) {
                 return -1;
             }
 
-            if (parseFloat(a.dataset.offsetY) < parseFloat(b.dataset.offsetY)) {
+            if (aState.y < bState.y) {
                 return -1;
-            } else if (parseFloat(a.dataset.offsetY) > parseFloat(b.dataset.offsetY)) {
+            } else if (aState.y > bState.y) {
                 return 1;
             } else {
-                if (parseFloat(a.dataset.offsetX) < parseFloat(b.dataset.offsetX)) {
+                if (aState.x < bState.x) {
                     return -1;
-                } else if (parseFloat(a.dataset.offsetX) > parseFloat(b.dataset.offsetX)) {
+                } else if (aState.x > bState.x) {
                     return 1;
                 } else {
                     return 0;
@@ -96,7 +92,7 @@ export default class CommentBar extends React.Component {
         let referenceIndex = Math.max(
             0,
             this.state.activeComment
-            ? elements.findIndex(element => {return element.dataset.commentId === this.state.activeComment})
+            ? elements.findIndex(element => {return element.dataset.commentId === this.state.activeComment && !this.props.comments[element.dataset.commentId].state.isOrphan})
             : 0
         );
 
@@ -114,9 +110,11 @@ export default class CommentBar extends React.Component {
         };
 
         // Elements above reference index need to be computed in reverse order
-        elements.slice(0, referenceIndex+1).reverse().forEach(el => {
+        elements.slice(0, referenceIndex + 1).reverse().forEach(el => {
+            let state = getState(el);
+
             let height = elementHeight(el);
-            let y_offset = Math.min(minAboveOffset - height, (el.dataset.offsetY || 0));
+            let y_offset = Math.min(minAboveOffset - height, (state.y || 0));
             el.style.top = y_offset + 'px';
 
             minAboveOffset = y_offset;
@@ -124,7 +122,9 @@ export default class CommentBar extends React.Component {
 
         elements.slice(referenceIndex).forEach(el => {
 
-            let y_offset = Math.max(minBelowOffset, el.dataset.offsetY || 0);
+            let state = getState(el);
+
+            let y_offset = Math.max(minBelowOffset, state.y || 0);
             el.style.top = y_offset + 'px';
 
             if (el.className == 'adnotatio-commentbar-orphanheader') {
@@ -134,7 +134,7 @@ export default class CommentBar extends React.Component {
                     el.style.display = 'none';
                 }
             } else {
-                if (el.dataset.isOrphan == 'true') el.className = 'adnotatio-commentbar-comment adnotatio-commentbar-orphan'
+                if (state.isOrphan) el.className = 'adnotatio-commentbar-comment adnotatio-commentbar-orphan'
                 else el.className = 'adnotatio-commentbar-comment'
             }
 
@@ -146,9 +146,9 @@ export default class CommentBar extends React.Component {
 
     render() {
         return <div className="adnotatio-commentbar" ref={this.commentContainer}>
-            {this.props.comments.map(comment => {
+            {Object.values(this.props.comments).map(comment => {
                 return <CommentBox
-                        isActive={comment.uuid === this.state.activeComment || comment.isDraft}
+                        isActive={comment.uuid === this.state.activeComment || comment.state.isDraft}
                         key={comment.uuid}
                         comment={comment}
                         currentAuthor={this.props.currentAuthor}

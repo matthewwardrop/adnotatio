@@ -55,10 +55,6 @@
         position: relative;
         flex: 0 0 250px;
 
-        * {
-            transition: all 0.2s ease-in-out;
-        }
-
         .adnotatio-commentbar-comment {
             text-align: left;
             position: absolute;
@@ -71,11 +67,14 @@
             margin-bottom: 20px;
             width: 220px;
             cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            font-size: small;
 
             .adnotatio-commentbar-comment-header {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
+                margin-bottom: 0.2em;
 
                 .adnotatio-commentbar-comment-header-avatar {
                     width: 30px;
@@ -96,7 +95,6 @@
 
                 .adnotatio-commentbar-comment-metadata {
                     opacity: 0.5;
-                    font-size: small;
                     display: block;
                     display: flex;
                     flex-direction: column;
@@ -114,7 +112,6 @@
                 }
 
                 .adnotatio-commentbar-comment-resolve {
-                    font-size: small;
                     border-radius: 2px;
                     padding: 5px;
                     color: #fff;
@@ -200,10 +197,12 @@
                 code {
                     display: block;
                     overflow: auto;
-                    max-height: 3em;
-                    border: 1px solid #aaa;
+                    background: #f5f5f5;
+                    border: 1px solid #ccc;
+                    border-radius: 3px;
                     padding: 3px;
                     white-space: pre;
+                    font-size: smaller;
                 }
 
                 code.inline {
@@ -288,6 +287,7 @@
             color: #aaa;
             margin-top: 50px;
             margin-bottom: 20px;
+            transition: all 0.2s ease-in-out;
         }
 
         .adnotatio-commentbar-orphan {
@@ -319,6 +319,7 @@
     border-radius:.2em;
     opacity: 0.5;
     position: absolute;
+    box-sizing: content-box;
 
     div {
         background: yellow;

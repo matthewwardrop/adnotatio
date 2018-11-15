@@ -53,7 +53,7 @@ export default class Annotatable extends React.Component {
 
         this.storage = this.props.storage || new LocalCommentStorage();
 
-        this.state = {'comments': []}
+        this.state = {'comments': {}}
     }
 
     // Component lifecycle methods
@@ -90,28 +90,13 @@ export default class Annotatable extends React.Component {
     // Component rendering
 
     renderAnnotations = () => {
-        if (this.state.comments.length === 0) return;
-        this.state.comments.forEach((comment) => {
-            let minOffsetX = Infinity;
-            let minOffsetY = Infinity;
-            let isOrphan = true;
-            comment.annotations.forEach((annotation) => {
-                let annotationElement = annotation.render(
-                    this.document.current, this.bglayer.current, this.fglayer.current,
-                    () => {this.onAnnotationClick(comment.uuid)},
-                    () => {this.onAnnotationMouseOver(comment.uuid)},
-                    () => {this.onAnnotationMouseOut(comment.uuid)}
-                );
-                if (annotationElement) {
-                    isOrphan = false;
-                    annotationElement.dataset.commentId = comment.uuid;
-                    minOffsetX = Math.min(minOffsetX, parseFloat(annotationElement.dataset.minOffsetX));
-                    minOffsetY = Math.min(minOffsetY, parseFloat(annotationElement.dataset.minOffsetY));
-                }
-            })
-            this.commentbar.current.setCommentAttributes({uuid: comment.uuid, offsetX: minOffsetX, offsetY: minOffsetY === Infinity ? 0 : minOffsetY, isOrphan: isOrphan});
-        })
-
+        if (Object.values(this.state.comments).length === 0) return;
+        Object.values(this.state.comments).forEach((comment) => {
+            comment.renderAnnotations(
+                this.document.current, this.bglayer.current, this.fglayer.current,
+                this.onAnnotationClick, this.onAnnotationMouseOver, this.onAnnotationMouseOut
+            );
+        });
         this.commentbar.current.renderOffsets();
     }
 
@@ -126,7 +111,7 @@ export default class Annotatable extends React.Component {
                     </div>
                     <div className="adnotatio-document-fg" ref={this.fglayer} />
                 </div>
-                {this.state.comments.length > 0 &&
+                {Object.values(this.state.comments).length > 0 &&
                     <CommentBar comments={this.state.comments} currentAuthor={this.storage.author.email || null} onCommentChange={this.onCommentChange} onCommentReply={this.onCommentReply} focusAnnotations={this.focusAnnotations} unfocusAnnotations={this.unfocusAnnotations} ref={this.commentbar} />
                 }
             </div>
@@ -156,15 +141,15 @@ export default class Annotatable extends React.Component {
             this.commentButton.current.style.display = "none";
         } else {
             this.commentButton.current.style.top = ((document.documentElement.scrollTop || document.body.scrollTop) + currentSelection.getRangeAt(0).getClientRects()[0].y - this.wrapper.current.offsetTop) + 'px';
-            this.commentButton.current.dataset.annotationType = 'text_highlight';
+            this.commentButton.current.dataset.annotationType = 'dom_highlight';
             this.commentButton.current.style.display = 'block';
         }
     }
 
     onCommentCreate = (e) => {
         e.stopPropagation();
-        if (this.commentButton.current.dataset.annotationType !== 'text_highlight') {
-            throw "Adnotatio only support textual highlights for now."
+        if (this.commentButton.current.dataset.annotationType !== 'dom_highlight') {
+            throw "Adnotatio only support DOM highlights for now."
         }
 
         let selection = window.getSelection();
@@ -173,13 +158,17 @@ export default class Annotatable extends React.Component {
         }
 
         let comment = this.storage.create();
-        comment.isDraft = true;
+        comment.state.isDraft = true;
 
+        let bbox = undefined;
         for (let i = 0; i < selection.rangeCount; i++) {
             let range = selection.getRangeAt(i);
-            comment.addAnnotation(DomHighlightAnnotation.fromRange(range, this.document.current));
+            let annotation = DomHighlightAnnotation.fromRange(range, this.document.current);
+            bbox = annotation.getBoundingBox(this.document.current, this.bglayer.current, this.fglayer.current).union(bbox);
+            comment.addAnnotation(annotation);
         }
 
+        comment.state.annotationBBox = bbox;
         this.storage.stage(comment);
         if (this.commentbar.current) this.commentbar.current.activateComment(comment.uuid);
 
@@ -203,7 +192,7 @@ export default class Annotatable extends React.Component {
             } else {
                 return 0;
             }
-        })
+        });
 
         comments.forEach((comment) => {
             if (comment.replyTo) {
@@ -211,16 +200,16 @@ export default class Annotatable extends React.Component {
             } else {
                 out[comment.uuid] = comment.copy();
             }
-        })
+        });
 
-        this.setState({'comments': Object.values(out).filter(comment => {return !comment.isResolved})})
+        this.setState({'comments': out});
     }
 
     onCommentChange = (action, comment) => {
         if (action == 'discard') {
             this.storage.discard(comment);
         } else if (action == 'update') {
-            if (comment.isDraft) {
+            if (comment.state.isDraft) {
                 this.storage.add(comment);
             } else {
                 this.storage.update(comment);

@@ -24,7 +24,7 @@ export default class CommentBox extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            draft: this.props.comment.isDraft ? this.props.comment.copy() : undefined
+            draft: this.props.comment.state.isDraft ? this.props.comment.copy() : undefined
         };
     }
 
@@ -43,10 +43,12 @@ export default class CommentBox extends React.Component {
                     throw e;
                 }
             }
-        }).replace(/&#x60;&#x60;&#x60;(.*?)&#x60;&#x60;&#x60;/gs, function (outer, inner, offset, string) {
+        }).replace(/&#x60;&#x60;&#x60;(?:\s*\n)*(.*?)(?:\s*\n\s)*&#x60;&#x60;&#x60;/gs, function (outer, inner, offset, string) {
+            inner = Underscore.unescape(inner);
             let highlighted = HighlightJs.highlightAuto(inner);
             return `<code language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
-        }).replace(/&#x60;(.*?)&#x60;/gs, function (outer, inner, offset, string) {
+        }).replace(/&#x60;([^\n]*?)&#x60;/gs, function (outer, inner, offset, string) {
+            inner = Underscore.unescape(inner);
             let highlighted = HighlightJs.highlightAuto(inner);
             return `<code class='inline' language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
         });
@@ -67,7 +69,7 @@ export default class CommentBox extends React.Component {
     }
 
     onDiscard = () => {
-        if (this.comment.isDraft) {
+        if (this.comment.state.isDraft) {
             this.props.onChange('discard', this.comment);
         } else {
             this.setState({
@@ -88,13 +90,12 @@ export default class CommentBox extends React.Component {
     render() {
         let comment = this.comment;
 
-        let hasDraft = this.state.draft || comment.replies.some(comment => {return comment.isDraft});
+        let hasDraft = this.state.draft || comment.replies.some(comment => {return comment.state.isDraft});
 
         return (
             <div
                 data-comment-id={comment.uuid}
                 data-is-active={this.props.isActive}
-                data-y-offset={comment.y_offset}
                 className={
                     (comment.replyTo
                         ? 'adnotatio-commentbar-comment-reply'
@@ -110,7 +111,7 @@ export default class CommentBox extends React.Component {
                 onClick={comment.replyTo ? undefined : greedyHandler(!this.props.isActive ? this.props.onActivate : undefined)}
                 onMouseOver={this.props.onMouseOver}
                 onMouseOut={this.props.onMouseOut}
-                style={comment.isDraft ? {transition: 'none'} : null}
+                style={comment.state.isDraft ? {transition: 'none', top: comment.state.offsetY} : null}
             >
                 {this.props.isActive &&
                     <div className='adnotatio-commentbar-comment-arrow-outline'>
@@ -119,7 +120,7 @@ export default class CommentBox extends React.Component {
                 }
                 <CommentHeader comment={comment} actionMain="Resolve" actionMainCallback={() => this.onResolve()}/>
                 {comment.annotations.length > 0 &&
-                    <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotations[0].highlighted_text}</span>
+                    <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotationDescription}</span>
                 }
                 {this.state.draft ?
                     <>

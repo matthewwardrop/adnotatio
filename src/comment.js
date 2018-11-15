@@ -9,7 +9,7 @@ export default class Comment {
 
     constructor({uuid=null, replyTo=null, context=null, text=null, annotations=null,
                  authorName=null, authorEmail=null, authorAvatar=null, tsCreated=null, tsUpdated=null,
-                 isResolved=false, isArchived=false, isDraft=false, replies=null}={}) {
+                 isResolved=false, isArchived=false, state=false, replies=null}={}) {
         this.uuid = uuid || uuid_v4();
         this.replyTo = replyTo;
 
@@ -29,8 +29,9 @@ export default class Comment {
         this.isArchived = isArchived;
 
         // Non-serialised attributes
-        this.isDraft = isDraft;
         this.replies = replies || [];
+
+        this.state = state || {};
     }
 
     static fromJSON = (json) => {
@@ -49,7 +50,7 @@ export default class Comment {
             tsUpdated: json.tsUpdated,
             isResolved: json.isResolved,
             isArchived: json.isArchived,
-            isDraft: json.isDraft,
+            state: json.state,
             replies: (json.replies || []).map(reply => {
                 return Comment.fromJSON(reply);
             })
@@ -75,7 +76,7 @@ export default class Comment {
         }
         if (complete) {
             json.replies = this.replies.map(reply => {return reply.toJSON()});
-            json.isDraft = this.isDraft;
+            json.state = this.state;
         }
         return json;
     }
@@ -97,6 +98,28 @@ export default class Comment {
 
     addAnnotation = (annotation) => {
         this.annotations.push(annotation);
+    }
+
+    renderAnnotations = (root, bglayer, fglayer, onClick, onMouseOver, onMouseOut) => {
+        let bbox;
+        this.annotations.forEach((annotation) => {
+            let annotationElement = annotation.render(
+                root, bglayer, fglayer,
+                () => {onClick(this.uuid)},
+                () => {onMouseOver(this.uuid)},
+                () => {onMouseOut(this.uuid)}
+            );
+            if (annotationElement) {
+                annotationElement.dataset.commentId = this.uuid;
+                bbox = annotation.getBoundingBox(root, bglayer, fglayer).union(bbox);
+            }
+        });
+        this.state.annotationBBox = bbox;
+        this.state.isOrphan = (bbox === undefined);
+    }
+
+    get annotationDescription() {
+        return this.annotations[0].description;
     }
 
 }

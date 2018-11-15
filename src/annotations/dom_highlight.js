@@ -1,6 +1,7 @@
 'use strict';
 
 import Annotation from './base';
+import {BoundingBox} from '../utils/bbox';
 import {greedyHandler} from '../utils/handlers';
 import {getViewportOffset} from '../utils/offset';
 import {getXPath} from '../utils/xpath';
@@ -9,15 +10,15 @@ export default class DomHighlightAnnotation extends Annotation {
 
     static TYPE = 'highlight_dom';
 
-    isOrphaned = (root=document.body) => {
-        return this.toRange(root) === null ? true : false;
-    }
-
-    get highlighted_text() {
+    get description() {
         return this.spec.text;
     }
 
-    render = (root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) => {
+    isOrphaned(root) {
+        return this.toRange(root) === null ? true : false;
+    }
+
+    render (root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) {
         let range = this.toRange(root);
         if (!range) return;
 
@@ -57,9 +58,32 @@ export default class DomHighlightAnnotation extends Annotation {
         return highlightContainer;
     }
 
+    getBoundingBox(root, bglayer, fglayer) {
+        let range = this.toRange(root);
+        let rects = range.getClientRects();
+        var rootOffset = getViewportOffset(fglayer);
+
+        let xMin = Infinity;
+        let xMax = -Infinity;
+        let yMin = Infinity;
+        let yMax = -Infinity;
+
+        for (let i = 0; i != rects.length; i++) {
+            let rect = rects[i];
+
+            xMin = Math.min(xMin, rect.left);
+            xMax = Math.max(xMax, rect.left + rect.width);
+            yMin = Math.min(yMin, rect.top);
+            yMax = Math.max(yMax, rect.top + rect.height);
+        }
+        return new BoundingBox(
+            xMin - rootOffset.left, yMin - rootOffset.top, xMax - xMin, yMax - yMin
+        );
+    }
+
     // Conversion to and from DOM Range
 
-    static fromRange(range, root=document.body) {
+    static fromRange(range, root) {
         return new this({
             ...this.get_spec_base(),
             text: range.toString(),
@@ -74,7 +98,7 @@ export default class DomHighlightAnnotation extends Annotation {
         })
     }
 
-    toRange = (root=document.body) => {
+    toRange(root) {
         let range = document.createRange();
 
         try {

@@ -137,7 +137,7 @@ export default class CommentStorage {
     add = (comment) => {
         if (this._cache.has(comment)) throw new CommentAlreadyExists(comment.uuid);
 
-        comment.isDraft = false;
+        comment.state.isDraft = false;
         comment.context = this.context;
         this._stage.add_or_update(comment);
 
@@ -176,7 +176,7 @@ export default class CommentStorage {
     }
 
     stage = (comment) => {
-        comment.isDraft = true;
+        comment.state.isDraft = true;
         this._stage.add_or_update(comment);
         this.notify();
     }

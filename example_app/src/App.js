@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Adnotatio, { LocalCommentStorage } from 'adnotatio';
 import './App.css';
 import 'katex/dist/katex.min.css';
+import 'highlight.js/styles/atom-one-light.css';
 
 
 class App extends Component {
