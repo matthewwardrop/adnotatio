@@ -36,7 +36,7 @@ export default class CommentBar extends React.Component {
 
         let getState = (el) => {
             let comment = this.props.comments[el.dataset.commentId];
-            if (comment && !comment.state.isOrphan) {
+            if (comment && !comment.state.isOrphan && comment.state.annotationBBox) {
                 return {
                     x: comment.state.annotationBBox.left,
                     y: comment.state.annotationBBox.top,
