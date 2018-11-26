@@ -5,6 +5,7 @@ const Axios = require('axios');
 import Comment from '../comment';
 import CommentStorage from './base';
 import {CommentAlreadyExists, CommentDoesNotExist} from '../utils/errors';
+import {asPromise} from '../utils/handlers';
 
 
 export default class RemoteCommentStorage extends CommentStorage {
@@ -26,10 +27,31 @@ export default class RemoteCommentStorage extends CommentStorage {
         return Axios.create({
             baseURL: this.baseURL
         })
-    }
+    };
+
+    onPreConnect = () => {};
 
     onConnect = () => {
-        this._timer = setInterval(this.sync, 5000);
+        asPromise(this.onPreConnect)
+        .then(() => {
+            this.axios.get('whoami')
+            .then(response => {
+                let userInfo = response.data.data.attributes;
+                if (userInfo !== undefined) {
+                    this.setAuthor({
+                        name: userInfo.name,
+                        email: userInfo.email,
+                        avatar: userInfo.avatar
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Could not get user information from server.", err);
+            });;
+        })
+        .then(() => {
+            this._timer = setInterval(this.sync, 5000);
+        })
     };
 
     onDisconnect = () => {

@@ -26,15 +26,14 @@ export default class OAuthCommentStorage extends RemoteCommentStorage {
         return axios;
     }
 
-    onConnect = () => {
+    onPreConnect = () => {
         return (
             asPromise(this.getAccessToken)
             .then((accessToken) => {
                 this.accessToken = accessToken;
-                this._timer = setInterval(this.sync, 5000);
             })
         );
-    };
+    }
 
     getAccessToken = () => {
         return this.accessToken;
