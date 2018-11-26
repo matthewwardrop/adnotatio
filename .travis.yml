@@ -1,0 +1,12 @@
+language: node_js
+node_js:
+- node
+deploy:
+  provider: npm
+  email: mpwardrop@gmail.com
+  api_key:
+    secure: AUly2twNWTUWdm1/RUGN49P0W5dFBmfO+ZMf78HyCy0jgnM5XylSJ9U9tFS1NOU4dWJZi3J/aMIJixPn0VjG5caGTZC1DwbtjxFCvumfdv7bqOWsTUwyvU/BrFOxIVKXh+E3ekWrXyAYZMa3jxbZt7DD2mIu81HB4lJjbL5dVCP2PoGC9Rgi4R/VHe8PFdTdAPmgi7UorztxJMHCZ0/tQehiSbes9oISKPGLxoIsd6Fk2EFzLZGiB5dBSLe54mC286mGA6sumGNHkjiNbytBAsF+3OeFvd9Ks60SQj+Eb46Nji5HAFjmWJ3qzSLcaS4FIpG/ao4pm+YEly4qpCGiG9vAm5fXjENOc4xGyNZD8RPo4Bp2uqBXz8An474i1+LJ0KWWlZpcM63m004GUpc6I/OERPmyRFOv0LPKK9NOi+bGmHtjznouMUaeinat/3qJMoATAgB/ezlZ+Osg7624hLO0NTSFWeaDwBdGAe420wf3vs9Bao9WiodQ7hlvDdCQmmdAyYe/a4NJ4+VqK7iqAtQU70zcFhUyST8o2Y6t2yAQnDeWDKUggTFuo1C3TV1wpmar8ZmxW9gl6kZHPRSQ+anY8cxg1IIKo7OfrTygJUvtyalkzVgIGABCBsXd/eWk99q2PwJnYfX2gmRoRI6CyRJih+Iiqx7SNI1IiKh8hrU=
+  on:
+    tags: true
+    repo: matthewwardrop/adnotatio
+  skip_cleanup: true
