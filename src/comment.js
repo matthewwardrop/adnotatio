@@ -71,8 +71,7 @@ export default class Comment {
             tsUpdated: this.tsUpdated,
             isResolved: this.isResolved,
             isArchived: this.isArchived,
-            isDraft: this.isDraft,
-            replies: this.replies.map(reply => {return reply.toJSON()})
+            isDraft: this.isDraft
         }
         if (complete) {
             json.replies = this.replies.map(reply => {return reply.toJSON()});

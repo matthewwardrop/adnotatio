@@ -142,7 +142,7 @@ export default class CommentStorage {
         this._stage.add_or_update(comment);
 
         return (
-            asPromise(this.onSubmit, comment)
+            asPromise(this.onSubmit, comment.toJSON())
             .then(
                 (success) => {
                     if (success) {
