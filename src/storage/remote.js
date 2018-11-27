@@ -32,26 +32,28 @@ export default class RemoteCommentStorage extends CommentStorage {
     onPreConnect = () => {};
 
     onConnect = () => {
-        asPromise(this.onPreConnect)
-        .then(() => {
-            this.axios.get('whoami')
-            .then(response => {
-                let userInfo = response.data.data.attributes;
-                if (userInfo !== undefined) {
-                    this.setAuthor({
-                        name: userInfo.name,
-                        email: userInfo.email,
-                        avatar: userInfo.avatar
-                    });
-                }
+        return (
+            asPromise(this.onPreConnect)
+            .then(() => {
+                this.axios.get('whoami')
+                .then(response => {
+                    let userInfo = response.data.data.attributes;
+                    if (userInfo !== undefined) {
+                        this.setAuthor({
+                            name: userInfo.name,
+                            email: userInfo.email,
+                            avatar: userInfo.avatar
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error("Could not get user information from server.", err);
+                });;
             })
-            .catch(err => {
-                console.error("Could not get user information from server.", err);
-            });;
-        })
-        .then(() => {
-            this._timer = setInterval(this.sync, 5000);
-        })
+            .then(() => {
+                this._timer = setInterval(this.sync, 5000);
+            })
+        );
     };
 
     onDisconnect = () => {
