@@ -195,10 +195,12 @@ export default class Annotatable extends React.Component {
         });
 
         comments.forEach((comment) => {
-            if (comment.replyTo) {
-                out[comment.replyTo].addReply(comment.copy());
-            } else {
-                out[comment.uuid] = comment.copy();
+            if (!comment.isResolved) {
+                if (comment.replyTo && comment.replyTo in out) {
+                    out[comment.replyTo].addReply(comment.copy());
+                } else if (!comment.replyTo) {
+                    out[comment.uuid] = comment.copy();
+                }
             }
         });
 
