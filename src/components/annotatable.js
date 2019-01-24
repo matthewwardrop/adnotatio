@@ -19,6 +19,7 @@ export default class Annotatable extends React.Component {
         documentId: PropTypes.string,
         documentVersion: PropTypes.string,
         documentAuthorEmails: PropTypes.arrayOf(PropTypes.string),
+        documentUri: PropTypes.string,
 
         useKaTeX: PropTypes.bool,
 
@@ -40,7 +41,8 @@ export default class Annotatable extends React.Component {
             authority: this.props.authority || null,
             documentId: this.props.documentId || null,
             documentVersion: this.props.documentVersion || null,
-            documentAuthorEmails: this.props.documentAuthorEmails || null
+            documentAuthorEmails: this.props.documentAuthorEmails || null,
+            documentUri: this.props.documentUri || null
         }
 
         // DOM references
