@@ -33,7 +33,7 @@ export default class CommentHeader extends React.PureComponent {
                         {this.renderDateString(comment.tsCreated)}
                     </span>
                 </span>
-                {!comment.replyTo &&
+                {!comment.replyTo && !comment.state.isDraft &&
                     <button className='adnotatio-commentbar-comment-resolve'
                         onClick={greedyHandler(this.props.actionMainCallback)}
                         title='Resolve'>
