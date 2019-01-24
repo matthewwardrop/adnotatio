@@ -95,7 +95,7 @@ export default class RemoteCommentStorage extends CommentStorage {
             this.axios
             .patch(
                 'comments/' + uuid,
-                {data: {type: 'comment_patch', id:uuid, attributes: patch}}
+                {data: {type: 'comment_patch', id:uuid, attributes: {context: this.context, patch: patch}}}
             )
         )
     }
