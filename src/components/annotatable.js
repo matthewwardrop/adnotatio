@@ -207,7 +207,7 @@ export default class Annotatable extends React.Component {
         this.setState({'comments': out});
     }
 
-    onCommentChange = (action, comment) => {
+    onCommentChange = (action, comment, patch) => {
         if (action == 'discard') {
             this.storage.discard(comment);
         } else if (action == 'update') {
@@ -216,6 +216,8 @@ export default class Annotatable extends React.Component {
             } else {
                 this.storage.update(comment);
             }
+        } else if (action == 'patch') {
+            this.storage.patch(comment, patch);
         } else {
             throw "Unknown action: " + action;
         }

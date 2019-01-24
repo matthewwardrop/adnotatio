@@ -84,6 +84,15 @@ export default class Comment {
         return Comment.fromJSON(this.toJSON(true));
     }
 
+    applyPatch = (patch) => {
+        for(let [attribute, value] of Object.entries(patch)) {
+            if (!this.hasOwnProperty(attribute))
+                throw new CommentAttributeDoesNotExist(attribute);
+            this[attribute] = value;
+        }
+        return this;
+    }
+
     // Attribute helpers
 
     asReply = (comment) => {

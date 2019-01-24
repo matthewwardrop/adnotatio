@@ -163,6 +163,24 @@ export default class CommentStorage {
         return this.add(comment);
     }
 
+    patch = (comment, patch) => {
+        if (!this.exists(comment)) throw new CommentDoesNotExist(comment.uuid);
+
+        this._stage.add_or_update(comment.copy().applyPatch(patch));
+
+        return (
+            asPromise(this.onPatch, comment.uuid, patch)
+            .then(
+                (success) => {
+                    if (success) {
+                        this._cache.add_or_update(this._stage.pop(comment.uuid));
+                        this.notify();
+                    }
+                }
+            )
+        );
+    }
+
     // Drafts
 
     create = (state) => {
@@ -211,5 +229,6 @@ export default class CommentStorage {
     onLoad = () => {}
     onSync = () => {}
     onSubmit = (comment) => {}
+    onPatch = (uuid, patch) => {}
 
 }

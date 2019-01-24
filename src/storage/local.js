@@ -36,4 +36,8 @@ export default class LocalCommentStorage extends CommentStorage {
         return true;
     }
 
+    onPatch = (uuid, patch) => {
+        throw "Not implemented.";
+    }
+
 }
