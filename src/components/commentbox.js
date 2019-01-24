@@ -23,6 +23,7 @@ export default class CommentBox extends React.Component {
 
     constructor(props) {
         super(props);
+        this.domDraftTextArea = null;
         this.state = {
             draft: this.props.comment.state.isDraft ? this.props.comment.copy() : undefined
         };
@@ -79,8 +80,13 @@ export default class CommentBox extends React.Component {
     }
 
     onResolve = () => {
-        this.comment.isResolved = true;
-        this.props.onChange('update', this.comment);
+        this.props.onChange('patch', this.comment, {isResolved: true});
+    }
+
+    componentDidMount() {
+        if (this.domDraftTextArea !== null) {
+            window.setTimeout(() => {this.domDraftTextArea.focus()}, 25);
+        }
     }
 
     componentDidUpdate() {
@@ -124,7 +130,7 @@ export default class CommentBox extends React.Component {
                 }
                 {this.state.draft ?
                     <>
-                        <TextArea autoFocus useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => {comment.text = e.target.value}}
+                        <TextArea inputRef={(el) => {this.domDraftTextArea = el}} useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => {comment.text = e.target.value}}
                         defaultValue={comment.text} onKeyDown={(e) => {if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {comment.text = e.target.value; this.onSave()}}}/>
                         <button className="adnotation-commentbar-comment-save" onClick={greedyHandler(this.onSave)}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={greedyHandler(this.onDiscard)}>Cancel</button>
                     </>
