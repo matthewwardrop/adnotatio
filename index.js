@@ -10,6 +10,7 @@ if (process.env.NODE_ENV !== 'production') {
 module.exports = {
     __esModule: true,
     default: m.default,
+    Annotation: m.Annotation,
     Comment: m.Comment,
     CommentStorage: m.CommentStorage,
     LocalCommentStorage: m.LocalCommentStorage,

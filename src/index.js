@@ -3,6 +3,7 @@
 import {} from './components/icons';  // Initialise icon library
 import Annotatable from './components/annotatable';
 
+import Annotation from './annotations/base';
 import Comment from './comment';
 import CommentStorage from './storage/base';
 import LocalCommentStorage from './storage/local';
@@ -13,6 +14,7 @@ import './base.less';
 
 export default Annotatable;
 export {
+    Annotation,
     Comment,
     CommentStorage,
     LocalCommentStorage,

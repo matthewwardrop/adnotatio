@@ -65,7 +65,7 @@ export default class RemoteCommentStorage extends CommentStorage {
             this.axios
             .get('comments', {params: this.context})
             .then((response) => {
-                return response.data.data.map(comment => {return Comment.fromJSON(comment.attributes)});
+                return response.data.data.map(comment => {return Comment.fromJSON(comment.attributes, this.annotationFactory)});
             })
         );
     };
@@ -75,7 +75,7 @@ export default class RemoteCommentStorage extends CommentStorage {
             this.axios
             .get('comments', {params: this.context})
             .then((response) => {
-                return response.data.data.map(comment => {return Comment.fromJSON(comment.attributes)});
+                return response.data.data.map(comment => {return Comment.fromJSON(comment.attributes, this.annotationFactory)});
             })
         );
     };

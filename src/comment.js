@@ -1,9 +1,9 @@
 'use strict';
 
-const uuid = require('uuid/v4');
-
-import DomHighlightAnnotation from './annotations/dom_highlight';
 const uuid_v4 = require('uuid/v4');
+
+import AnnotationFactory from './annotations/factory';
+
 
 export default class Comment {
 
@@ -34,14 +34,14 @@ export default class Comment {
         this.state = state || {};
     }
 
-    static fromJSON = (json) => {
+    static fromJSON = (json, annotationFactory) => {
         return new Comment({
             uuid: json.uuid,
             replyTo: json.replyTo,
             context: json.context,
             text: json.text,
             annotations: (json.annotations || []).map(annotation => {
-                return DomHighlightAnnotation.fromSpec(annotation);
+                return annotationFactory.fromSpec(annotation);
             }),
             authorName: json.authorName,
             authorEmail: json.authorEmail,
@@ -52,7 +52,7 @@ export default class Comment {
             isArchived: json.isArchived,
             state: json.state,
             replies: (json.replies || []).map(reply => {
-                return Comment.fromJSON(reply);
+                return Comment.fromJSON(reply, annotationFactory);
             })
         });
     }
@@ -71,7 +71,6 @@ export default class Comment {
             tsUpdated: this.tsUpdated,
             isResolved: this.isResolved,
             isArchived: this.isArchived,
-            isDraft: this.isDraft
         }
         if (complete) {
             json.replies = this.replies.map(reply => {return reply.toJSON()});
@@ -81,7 +80,11 @@ export default class Comment {
     }
 
     copy = (complete=false) => {
-        return Comment.fromJSON(this.toJSON(complete));
+        // Copy annotation types so we can reconstruct them on the other side
+        let annotationFactory = new AnnotationFactory(
+            this.annotations.map(annotation => annotation.constructor)
+        );
+        return Comment.fromJSON(this.toJSON(complete), annotationFactory);
     }
 
     applyPatch = (patch) => {

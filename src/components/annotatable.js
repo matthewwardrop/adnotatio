@@ -4,15 +4,21 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import Annotation from '../annotations/base';
+import AnnotationFactory from '../annotations/factory';
+import DomHighlightAnnotation from '../annotations/highlight_dom';
 import CommentStorage from '../storage/base';
 import LocalCommentStorage from '../storage/local';
-import DomHighlightAnnotation from '../annotations/dom_highlight';
 import {getViewportOffset} from '../utils/offset';
 
 import CommentBar from './commentbar';
 
 
 export default class Annotatable extends React.Component {
+
+    static DEFAULT_ANNOTATION_CLASSES = [
+        DomHighlightAnnotation,
+    ];
 
     static propTypes = {
         authority: PropTypes.string,
@@ -23,14 +29,12 @@ export default class Annotatable extends React.Component {
 
         useKaTeX: PropTypes.bool,
 
-        storage: (props, propName, componentName) => {
-            if (props[propName] !== null && !props[propName] instanceof CommentStorage) {
-                return new Error(
-                    'Invalid prop `' + propName + '` supplied to' +
-                    ' `' + componentName + '`. Must be an instance of CommentStorage or null.'
-                );
+        storage: PropTypes.instanceOf(CommentStorage),
+        annotationClasses: PropTypes.arrayOf(function(propValue, key, componentName, location, propFullName) {
+            if (!(propValue[key].prototype instanceof Annotation)) {
+                return new Error('`annotationClasses` must be a list of subclasses of `Annotation`.');
             }
-        }
+        }),
     }
 
     constructor(props) {
@@ -53,7 +57,13 @@ export default class Annotatable extends React.Component {
         this.commentbar = React.createRef();
         this.commentButton = React.createRef();
 
+        // Storage for comments and annotations
         this.storage = this.props.storage || new LocalCommentStorage();
+
+        // Register annotation classes
+        this.annotationFactory = new AnnotationFactory(
+            this.constructor.DEFAULT_ANNOTATION_CLASSES.concat(this.props.annotationClasses || [])
+        );
 
         this.state = {'comments': {}}
     }
@@ -62,7 +72,7 @@ export default class Annotatable extends React.Component {
 
     componentDidMount() {
       window.addEventListener('resize', this.onWindowResize);
-      this.storage.connect(this.documentContext, this.onCommentsUpdate);
+      this.storage.connect(this.documentContext, this.annotationFactory, this.onCommentsUpdate);
       this.componentDidUpdate();
       try {
           this.mutationObserver = new window.MutationObserver(this.onDocumentUpdate);
@@ -143,14 +153,14 @@ export default class Annotatable extends React.Component {
             this.commentButton.current.style.display = "none";
         } else {
             this.commentButton.current.style.top = ((document.documentElement.scrollTop || document.body.scrollTop) + currentSelection.getRangeAt(0).getClientRects()[0].y - this.wrapper.current.offsetTop) + 'px';
-            this.commentButton.current.dataset.annotationType = 'dom_highlight';
+            this.commentButton.current.dataset.annotationType = 'highlight_dom';
             this.commentButton.current.style.display = 'block';
         }
     }
 
     onCommentCreate = (e) => {
         e.stopPropagation();
-        if (this.commentButton.current.dataset.annotationType !== 'dom_highlight') {
+        if (this.commentButton.current.dataset.annotationType !== 'highlight_dom') {
             throw "Adnotatio only support DOM highlights for now."
         }
 
@@ -165,7 +175,7 @@ export default class Annotatable extends React.Component {
         let bbox = undefined;
         for (let i = 0; i < selection.rangeCount; i++) {
             let range = selection.getRangeAt(i);
-            let annotation = DomHighlightAnnotation.fromRange(range, this.document.current);
+            let annotation = this.annotationFactory.classForType('highlight_dom').fromRange(range, this.document.current);
             bbox = annotation.getBoundingBox(this.document.current, this.bglayer.current, this.fglayer.current).union(bbox);
             comment.addAnnotation(annotation);
         }

@@ -17,7 +17,7 @@ export default class LocalCommentStorage extends CommentStorage {
     onLoad = () => {
         let comments = (
             (JSON.parse(window.localStorage.getItem('comments')) || [])
-            .map(comment => {return Comment.fromJSON(comment)})
+            .map(comment => {return Comment.fromJSON(comment, this.annotationFactory)})
         );
         return comments;
     }
@@ -25,7 +25,7 @@ export default class LocalCommentStorage extends CommentStorage {
     onSync = () => {
         let comments = (
             (JSON.parse(window.localStorage.getItem('comments')) || [])
-            .map(comment => {return Comment.fromJSON(comment)})
+            .map(comment => {return Comment.fromJSON(comment, this.annotationFactory)})
         );
         return comments;
     }

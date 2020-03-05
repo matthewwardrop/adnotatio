@@ -57,13 +57,17 @@ export default class CommentStorage {
     constructor() {
         this._cache = new CommentCache();
         this._stage = new CommentCache();
-        this.context = null;
+
         this.author = {};
+
+        this.context = null;
+        this.annotationFactory = null;
         this.notifyCallback = null;
     }
 
-    connect = (context, callback) => {
-        this.context = context,
+    connect = (context, annotationFactory, callback) => {
+        this.context = context;
+        this.annotationFactory = annotationFactory;
         this.notifyCallback = callback;
 
         return asPromise(this.onConnect).then(this.load);
@@ -71,6 +75,7 @@ export default class CommentStorage {
 
     disconnect = () => {
         this.context = null;
+        this.annotationFactory = null;
         this.notifyCallback = null;
 
         return asPromise(this.onDisconnect);
