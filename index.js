@@ -1,5 +1,3 @@
-'use strict';
-
 let m;
 if (process.env.NODE_ENV !== 'production') {
     m = require('./dist/adnotatio.js');
@@ -14,6 +12,6 @@ module.exports = {
     Comment: m.Comment,
     CommentStorage: m.CommentStorage,
     LocalCommentStorage: m.LocalCommentStorage,
+    OAuthCommentStorage: m.OAuthCommentStorage,
     RemoteCommentStorage: m.RemoteCommentStorage,
-    OAuthCommentStorage: m.OAuthCommentStorage
 };

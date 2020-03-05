@@ -1,20 +1,17 @@
-'use strict';
-
+import { CommentAlreadyExists, CommentDoesNotExist } from '../utils/errors';
+import { asPromise } from '../utils/handlers';
 import Comment from '../comment';
-import {asPromise} from '../utils/handlers';
-import {CommentAlreadyExists, CommentDoesNotExist, NotImplementedError} from '../utils/errors';
-
 
 class CommentCache {
 
     static fromCache(cache) {
-        let newCache = new CommentCache();
-        cache.toArray().forEach(comment => newCache.add_or_update(comment));
+        const newCache = new CommentCache();
+        cache.toArray().forEach(comment => newCache.addOrUpdate(comment));
         return newCache;
     }
 
     constructor() {
-        this.comments = {}
+        this.comments = {};
     }
 
     clear = () => {
@@ -22,10 +19,10 @@ class CommentCache {
     }
 
     has = (uuid) => {
-        return this.comments.hasOwnProperty(uuid);
+        return uuid in this.comments;
     }
 
-    add_or_update = (comment) => {
+    addOrUpdate = (comment) => {
         this.comments[comment.uuid] = comment;
     }
 
@@ -46,11 +43,10 @@ class CommentCache {
     }
 
     union = (otherCache) => {
-        otherCache.toArray().forEach(comment => this.add_or_update(comment));
+        otherCache.toArray().forEach(comment => this.addOrUpdate(comment));
     }
 
 }
-
 
 export default class CommentStorage {
 
@@ -81,18 +77,18 @@ export default class CommentStorage {
         return asPromise(this.onDisconnect);
     }
 
-    setAuthor = ({name=undefined, email=undefined, avatar=undefined} = {}) => {
+    setAuthor = ({ name = undefined, email = undefined, avatar = undefined } = {}) => {
         this.author = {
             name: name,
             email: email,
-            avatar: avatar
-        }
+            avatar: avatar,
+        };
     }
 
     // Event handlers
     notify = () => {
         if (this.notifyCallback) {
-            let comments = CommentCache.fromCache(this._cache);
+            const comments = CommentCache.fromCache(this._cache);
             comments.union(this._stage);
             this.notifyCallback(comments.toArray());
         }
@@ -103,61 +99,62 @@ export default class CommentStorage {
     load = () => {
         return (
             asPromise(this.onLoad)
-            .then(
-                (comments) => {
-                    this._cache.clear();
-                    comments.forEach(comment => {
-                        this._cache.add_or_update(comment);
-                    })
-                    this.notify();
-                }
-            )
+                .then(
+                    (comments) => {
+                        this._cache.clear();
+                        comments.forEach(comment => {
+                            this._cache.addOrUpdate(comment);
+                        });
+                        this.notify();
+                    }
+                )
         );
     }
 
     sync = () => {
         return (
             asPromise(this.onSync)
-            .then(
-                (newComments) => {
-                    newComments.forEach(comment => {
-                        this._cache.add_or_update(comment);
-                    });
-                    this.notify();
-                }
-            )
+                .then(
+                    (newComments) => {
+                        newComments.forEach(comment => {
+                            this._cache.addOrUpdate(comment);
+                        });
+                        this.notify();
+                    }
+                )
         );
     }
 
     get = (uuid) => {
-        uuid = this._get_uuid(uuid);
+        uuid = this._getUuid(uuid);
         return this._stage.get(uuid) || this._cache.get(uuid);
     }
 
     exists = (uuid) => {
-        uuid = this._get_uuid(uuid);
+        uuid = this._getUuid(uuid);
         return this._stage.has(uuid) || this._cache.has(uuid);
     }
 
-    add = (comment, force=false) => {
-        let uuid = this._get_uuid(comment);
-        if (!force && this._cache.has(uuid)) throw new CommentAlreadyExists("Comment "+comment.uuid+" already exists!");
+    add = (comment, force = false) => {
+        const uuid = this._getUuid(comment);
+        if (!force && this._cache.has(uuid)) throw new CommentAlreadyExists('Comment ' + comment.uuid + ' already exists!');
 
         comment = comment.copy();
+        comment.isDraft = false;
         comment.context = this.context;
-        this._stage.add_or_update(comment);
+        this._stage.addOrUpdate(comment);
 
         return (
             asPromise(this.onSubmit, comment.toJSON())
-            .then(
-                (success) => {
-                    if (success) {
-                        this._cache.add_or_update(comment);
-                        this._stage.pop(comment.uuid);
-                        this.notify();
+                .then(
+                    (success) => {
+                        if (success) {
+                            this._cache.addOrUpdate(comment);
+                            this._stage.pop(comment.uuid);
+                            this.notify();
+                        }
                     }
-                }
-            )
+                )
         );
     }
 
@@ -169,18 +166,18 @@ export default class CommentStorage {
     patch = (comment, patch) => {
         if (!this.exists(comment)) throw new CommentDoesNotExist(comment.uuid);
 
-        this._stage.add_or_update(comment.copy().applyPatch(patch));
+        this._stage.addOrUpdate(comment.copy().applyPatch(patch));
 
         return (
             asPromise(this.onPatch, comment.uuid, patch)
-            .then(
-                (success) => {
-                    if (success) {
-                        this._cache.add_or_update(this._stage.pop(comment.uuid));
-                        this.notify();
+                .then(
+                    (success) => {
+                        if (success) {
+                            this._cache.addOrUpdate(this._stage.pop(comment.uuid));
+                            this.notify();
+                        }
                     }
-                }
-            )
+                )
         );
     }
 
@@ -192,19 +189,20 @@ export default class CommentStorage {
             authorName: this.author.name,
             authorEmail: this.author.email,
             authorAvatar: this.author.avatar,
-            ...state
+            isDraft: true,
+            ...state,
         });
     }
 
     stage = (comment) => {
-        comment.state.isDraft = true;
-        this._stage.add_or_update(comment);
+        comment.isDraft = true;
+        this._stage.addOrUpdate(comment);
         this.notify();
     }
 
     commit = (uuid) => {
-        uuid = this._get_uuid(uuid);
-        let comment = this._stage.get(uuid);
+        uuid = this._getUuid(uuid);
+        const comment = this._stage.get(uuid);
 
         if (!comment) throw new CommentDoesNotExist(uuid);
 
@@ -212,8 +210,8 @@ export default class CommentStorage {
     }
 
     discard = (uuid) => {
-        uuid = this._get_uuid(uuid);
-        let comment = this._stage.get(uuid);
+        uuid = this._getUuid(uuid);
+        const comment = this._stage.get(uuid);
 
         if (!comment) throw new CommentDoesNotExist(uuid);
 
@@ -221,8 +219,8 @@ export default class CommentStorage {
         this.notify();
     }
 
-    _get_uuid = (comment_uuid) => {
-        return comment_uuid instanceof Comment ? comment_uuid.uuid : comment_uuid;
+    _getUuid = (commentUuid) => {
+        return commentUuid instanceof Comment ? commentUuid.uuid : commentUuid;
     }
 
     // Hooks for subclasses to modify behaviour

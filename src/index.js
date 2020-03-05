@@ -1,16 +1,11 @@
-'use strict';
-
-import {} from './components/icons';  // Initialise icon library
+import './base.less';
 import Annotatable from './components/annotatable';
-
 import Annotation from './annotations/base';
 import Comment from './comment';
 import CommentStorage from './storage/base';
 import LocalCommentStorage from './storage/local';
-import RemoteCommentStorage from './storage/remote';
 import OAuthCommentStorage from './storage/oauth';
-
-import './base.less';
+import RemoteCommentStorage from './storage/remote';
 
 export default Annotatable;
 export {
@@ -18,6 +13,6 @@ export {
     Comment,
     CommentStorage,
     LocalCommentStorage,
+    OAuthCommentStorage,
     RemoteCommentStorage,
-    OAuthCommentStorage
 };

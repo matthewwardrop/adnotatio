@@ -1,11 +1,6 @@
-'use strict';
-
-const Axios = require('axios');
-
-import {asPromise} from '../utils/handlers';
-
+import { asPromise } from '../utils/handlers';
 import RemoteCommentStorage from './remote';
-
+const Axios = require('axios');
 
 export default class OAuthCommentStorage extends RemoteCommentStorage {
 
@@ -15,12 +10,12 @@ export default class OAuthCommentStorage extends RemoteCommentStorage {
     }
 
     createAxios = () => {
-        let axios = Axios.create({
-            baseURL: this.baseURL
+        const axios = Axios.create({
+            baseURL: this.baseURL,
         });
-        let accessToken = this.accessToken;
-        axios.interceptors.request.use(function (config) {
-            config.headers.Authorization = "Bearer " + accessToken;
+        const accessToken = this.accessToken;
+        axios.interceptors.request.use(function(config) {
+            config.headers.Authorization = 'Bearer ' + accessToken;
             return config;
         });
         return axios;
@@ -29,9 +24,9 @@ export default class OAuthCommentStorage extends RemoteCommentStorage {
     onPreConnect = () => {
         return (
             asPromise(this.getAccessToken)
-            .then((accessToken) => {
-                this.accessToken = accessToken;
-            })
+                .then((accessToken) => {
+                    this.accessToken = accessToken;
+                })
         );
     }
 

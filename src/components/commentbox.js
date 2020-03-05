@@ -1,91 +1,95 @@
-import React from 'react';
-import PropTypes from 'prop-types';
-import TextArea from 'react-textarea-autosize';
-const KaTeX = require('katex');
+
 import Comment from '../comment';
 import CommentHeader from './commentheader';
-import Underscore from 'underscore';
+import { greedyHandler } from '../utils/handlers';
 import HighlightJs from 'highlight.js';
+import PropTypes from 'prop-types';
+import React from 'react';
+import TextArea from 'react-textarea-autosize';
+import Underscore from 'underscore';
 
-import {greedyHandler} from '../utils/handlers';
-
+const KaTeX = require('katex');
 
 export default class CommentBox extends React.Component {
 
     static propTypes = {
-        comment: PropTypes.object,
+        comment: PropTypes.instanceOf(Comment),
+        isActive: PropTypes.bool,
+        currentAuthor: PropTypes.string, // Author email
+
         onClick: PropTypes.func,
         onMouseOver: PropTypes.func,
         onMouseOut: PropTypes.func,
+        onActivate: PropTypes.func,
         onHeightChange: PropTypes.func,
-        onChange: PropTypes.func
+        onChange: PropTypes.func,
+        onCommentReply: PropTypes.func,
     }
 
     constructor(props) {
         super(props);
         this.domDraftTextArea = null;
         this.state = {
-            draft: this.props.comment.state.isDraft ? this.props.comment.copy(true) : undefined
+            editing: this.props.comment.state.editing ? this.props.comment.copy(true) : null,
         };
     }
 
     renderCommentString = (comment) => {
         return Underscore.escape(comment).replace(/(?:\$\$(.*?)\$\$)|(?:\\\[(.*?)\\\])|(?:\$(.*?)\$)|(?:\\\((.*?)\\\))/gs, function(outer, inner1, inner2, inner3, inner4, offset, string) {
-            let displayMode = !!(inner1 || inner2);
-            let inner = Underscore.unescape(inner1 || inner2 || inner3 || inner4);
+            const displayMode = !!(inner1 || inner2);
+            const inner = Underscore.unescape(inner1 || inner2 || inner3 || inner4);
 
             try {
                 return KaTeX.renderToString(inner, { displayMode: displayMode });
             } catch (e) {
                 if (e instanceof KaTeX.ParseError) {
-                    console.log(e);
-                    return "<span class='adnotatio-commentbar-latex-error' title='" + Underscore.escape(e.toString()) + "'>" + Underscore.escape(inner) + "</span>";
+                    return "<span class='adnotatio-commentbar-latex-error' title='" + Underscore.escape(e.toString()) + "'>" + Underscore.escape(inner) + '</span>';
                 } else {
                     throw e;
                 }
             }
-        }).replace(/&#x60;&#x60;&#x60;(?:\s*\n)*(.*?)(?:\s*\n\s)*&#x60;&#x60;&#x60;/gs, function (outer, inner, offset, string) {
+        }).replace(/&#x60;&#x60;&#x60;(?:\s*\n)*(.*?)(?:\s*\n\s)*&#x60;&#x60;&#x60;/gs, function(outer, inner, offset, string) {
             inner = Underscore.unescape(inner);
-            let highlighted = HighlightJs.highlightAuto(inner);
-            return `<code language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
-        }).replace(/&#x60;([^\n]*?)&#x60;/gs, function (outer, inner, offset, string) {
+            const highlighted = HighlightJs.highlightAuto(inner);
+            return '<code language=\'' + highlighted.language + '\'>' + highlighted.value + '</code>';
+        }).replace(/&#x60;([^\n]*?)&#x60;/gs, function(outer, inner, offset, string) {
             inner = Underscore.unescape(inner);
-            let highlighted = HighlightJs.highlightAuto(inner);
-            return `<code class='inline' language='` + highlighted.language + `'>` + highlighted.value + `</code>`;
+            const highlighted = HighlightJs.highlightAuto(inner);
+            return '<code class=\'inline\' language=\'' + highlighted.language + '\'>' + highlighted.value + '</code>';
         });
     }
 
     get comment() {
-        return this.state.draft || this.props.comment;
+        return this.state.editing || this.props.comment;
     }
 
     onEdit = () => {
-        let comment = this.props.comment.copy(true);
-        this.setState({draft: comment});
+        const comment = this.props.comment.copy(true);
+        this.setState({ editing: comment });
     }
 
     onSave = () => {
         this.props.onChange('update', this.comment);
-        this.setState({draft: null});
+        this.setState({ editing: null });
     }
 
     onDiscard = () => {
-        if (this.comment.state.isDraft) {
+        if (this.comment.isDraft) {
             this.props.onChange('discard', this.comment);
         } else {
             this.setState({
-                draft: undefined
-            })
+                editing: undefined,
+            });
         }
     }
 
     onResolve = () => {
-        this.props.onChange('patch', this.comment, {isResolved: true});
+        this.props.onChange('patch', this.comment, { isResolved: true });
     }
 
     componentDidMount() {
         if (this.domDraftTextArea !== null) {
-            window.setTimeout(() => {this.domDraftTextArea.focus()}, 25);
+            window.setTimeout(() => { this.domDraftTextArea.focus(); }, 25);
         }
     }
 
@@ -94,9 +98,9 @@ export default class CommentBox extends React.Component {
     }
 
     render() {
-        let comment = this.comment;
+        const comment = this.comment;
 
-        let hasDraft = this.state.draft || comment.replies.some(comment => {return comment.state.isDraft});
+        const isEditing = this.state.editing !== null || comment.replies.some(comment => { return comment.state.editing; });
 
         return (
             <div
@@ -108,8 +112,8 @@ export default class CommentBox extends React.Component {
                         : ('adnotatio-commentbar-comment' +
                             (
                                 comment.isOrphan
-                                ? ' adnotatio-commentbar-orphan'
-                                : ''
+                                    ? ' adnotatio-commentbar-orphan'
+                                    : ''
                             )
                         )
                     )
@@ -117,7 +121,7 @@ export default class CommentBox extends React.Component {
                 onClick={comment.replyTo ? undefined : greedyHandler(!this.props.isActive ? this.props.onActivate : undefined)}
                 onMouseOver={this.props.onMouseOver}
                 onMouseOut={this.props.onMouseOut}
-                style={comment.state.isDraft ? {transition: 'none', top: comment.state.offsetY} : null}
+                style={comment.state.editing ? { transition: 'none', top: comment.state.offsetY } : null}
             >
                 {this.props.isActive &&
                     <div className='adnotatio-commentbar-comment-arrow-outline'>
@@ -128,20 +132,19 @@ export default class CommentBox extends React.Component {
                 {comment.annotations.length > 0 &&
                     <span className='adnotatio-commentbar-comment-highlighted'>{comment.annotationDescription}</span>
                 }
-                {this.state.draft ?
-                    <>
-                        <TextArea inputRef={(el) => {this.domDraftTextArea = el}} useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => {comment.text = e.target.value}}
-                        defaultValue={comment.text} onKeyDown={(e) => {if ((e.keyCode == 10 || e.keyCode == 13) && e.ctrlKey) {comment.text = e.target.value; this.onSave()}}}/>
+                {this.state.editing
+                    ? <>
+                        <TextArea inputRef={(el) => { this.domDraftTextArea = el; }} useCacheForDOMMeasurements onHeightChange={this.props.onHeightChange} onChange={(e) => { comment.text = e.target.value; }}
+                            defaultValue={comment.text} onKeyDown={(e) => { if ((e.keyCode === 10 || e.keyCode === 13) && e.ctrlKey) { comment.text = e.target.value; this.onSave(); } }}/>
                         <button className="adnotation-commentbar-comment-save" onClick={greedyHandler(this.onSave)}>Save</button><button className="adnotation-commentbar-comment-discard" onClick={greedyHandler(this.onDiscard)}>Cancel</button>
                     </>
-                    :
-                    <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{__html: this.renderCommentString(comment.text)}} onClick={this.props.isActive && this.props.currentAuthor === comment.authorEmail ? this.onEdit : undefined}/>
+                    : <span className='adnotatio-commentbar-comment-text' dangerouslySetInnerHTML={{ __html: this.renderCommentString(comment.text) }} onClick={this.props.isActive && this.props.currentAuthor === comment.authorEmail ? this.onEdit : undefined}/>
                 }
                 <div className='adnotatio-commentbar-comment-replies'>
-                    {comment.replies.sort((a,b) => a.ts_created - b.ts_created).map(reply => {
-                        return <CommentBox key={reply.uuid} comment={reply} currentAuthor={this.props.currentAuthor} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />
+                    {comment.replies.sort((a, b) => a.ts_created - b.ts_created).map(reply => {
+                        return <CommentBox key={reply.uuid} comment={reply} currentAuthor={this.props.currentAuthor} isActive={this.props.isActive} onChange={this.props.onChange} onHeightChange={this.props.onHeightChange} />;
                     })}
-                    {this.props.isActive && !hasDraft && this.props.onCommentReply &&
+                    {this.props.isActive && !isEditing && this.props.onCommentReply &&
                         <div className='adnotatio-commentbar-comment-replyplaceholder'>
                             <input type='text' placeholder='Reply...' onClick={greedyHandler(() => this.props.onCommentReply(comment.uuid))}/>
                         </div>
@@ -149,7 +152,7 @@ export default class CommentBox extends React.Component {
                 </div>
 
             </div>
-        )
+        );
     }
 
 }

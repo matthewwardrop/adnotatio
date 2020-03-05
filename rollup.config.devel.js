@@ -1,8 +1,7 @@
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
 import babel from 'rollup-plugin-babel';
+import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
-
+import resolve from '@rollup/plugin-node-resolve';
 
 const dependencies = Object.keys(require('./package.json').dependencies);
 
@@ -13,17 +12,18 @@ export default {
         {
             file: 'dist/adnotatio.js',
             format: 'cjs',
-            name: 'adnotatio'
-        }
+            name: 'adnotatio',
+            exports: 'named', /** Disable warning for default imports */
+        },
     ],
     plugins: [
         resolve(),
         commonjs({
-            exclude: ['src/**']
+            exclude: ['src/**'],
         }),
         babel({
-            exclude: 'node_modules/**'
+            exclude: 'node_modules/**',
         }),
-        postcss()
-    ]
+        postcss(),
+    ],
 };

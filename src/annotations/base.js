@@ -1,7 +1,4 @@
-'use strict';
-
-import {NotImplementedError} from '../utils/errors';
-
+import { AnnotationSpecMalformed, NotImplementedError } from '../utils/errors';
 
 export default class Annotation {
 
@@ -13,7 +10,7 @@ export default class Annotation {
     constructor(spec) {
         this.spec = spec;
         if (!this.validate()) {
-            throw "Invalid annotation spec."
+            throw new AnnotationSpecMalformed('Invalid annotation spec.');
         }
     }
 
@@ -23,11 +20,11 @@ export default class Annotation {
         return new this(spec);
     }
 
-    static get_spec_base() {
+    static getSpecBase() {
         return {
             type: this.TYPE,
-            implementation: this.IMPLEMENTATION
-        }
+            implementation: this.IMPLEMENTATION,
+        };
     }
 
     // validation
@@ -49,13 +46,13 @@ export default class Annotation {
         return this.spec;
     }
 
-    toJSON() {  // alias for toSpec
+    toJSON() { // alias for toSpec
         return this.toSpec();
     }
 
     // rendering
 
-    render(root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) {
+    render(root, bglayer, fglayer, onclick = null, onmouseover = null, onmouseout = null) {
         throw new NotImplementedError();
     }
 

@@ -1,10 +1,8 @@
-'use strict';
-
 import Annotation from './base';
-import {BoundingBox} from '../utils/bbox';
-import {greedyHandler} from '../utils/handlers';
-import {getViewportOffset} from '../utils/offset';
-import {getXPath} from '../utils/xpath';
+import { BoundingBox } from '../utils/bbox';
+import { getViewportOffset } from '../utils/offset';
+import { getXPath } from '../utils/xpath';
+import { greedyHandler } from '../utils/handlers';
 
 export default class DomHighlightAnnotation extends Annotation {
 
@@ -15,17 +13,17 @@ export default class DomHighlightAnnotation extends Annotation {
     }
 
     isOrphaned(root) {
-        return this.toRange(root) === null ? true : false;
+        return this.toRange(root) === null;
     }
 
-    render (root, bglayer, fglayer, onclick=null, onmouseover=null, onmouseout=null) {
-        let range = this.toRange(root);
+    render(root, bglayer, fglayer, onclick = null, onmouseover = null, onmouseout = null) {
+        const range = this.toRange(root);
         if (!range) return;
 
-        var rootOffset = getViewportOffset(fglayer);
-    	var rects = range.getClientRects();
+        const rootOffset = getViewportOffset(fglayer);
+        const rects = range.getClientRects();
 
-        let highlightContainer = document.createElement('div');
+        const highlightContainer = document.createElement('div');
         highlightContainer.className = 'adnotatio-text-highlight';
         highlightContainer.style.top = '0px';
         highlightContainer.style.left = '0px';
@@ -38,17 +36,17 @@ export default class DomHighlightAnnotation extends Annotation {
         let minOffsetX = Infinity;
         let minOffsetY = Infinity;
 
-    	for (var i = 0; i != rects.length; i++) {
-    		var rect = rects[i];
-    		var highlightDiv = document.createElement('div');
-            minOffsetX = Math.min(minOffsetX, rect.left - rootOffset.left)
+        for (let i = 0; i !== rects.length; i++) {
+            const rect = rects[i];
+            const highlightDiv = document.createElement('div');
+            minOffsetX = Math.min(minOffsetX, rect.left - rootOffset.left);
             minOffsetY = Math.min(minOffsetY, rect.top - rootOffset.top);
-    		highlightDiv.style.top = (rect.top - rootOffset.top) + 'px';
-    		highlightDiv.style.left = (rect.left - rootOffset.left) + 'px';
-    		highlightDiv.style.width = rect.width + 'px';
-    		highlightDiv.style.height = rect.height + 'px';
-    		highlightContainer.appendChild(highlightDiv);
-    	}
+            highlightDiv.style.top = (rect.top - rootOffset.top) + 'px';
+            highlightDiv.style.left = (rect.left - rootOffset.left) + 'px';
+            highlightDiv.style.width = rect.width + 'px';
+            highlightDiv.style.height = rect.height + 'px';
+            highlightContainer.appendChild(highlightDiv);
+        }
 
         highlightContainer.dataset.minOffsetX = minOffsetX;
         highlightContainer.dataset.minOffsetY = minOffsetY;
@@ -59,17 +57,17 @@ export default class DomHighlightAnnotation extends Annotation {
     }
 
     getBoundingBox(root, bglayer, fglayer) {
-        let range = this.toRange(root);
-        let rects = range.getClientRects();
-        var rootOffset = getViewportOffset(fglayer);
+        const range = this.toRange(root);
+        const rects = range.getClientRects();
+        const rootOffset = getViewportOffset(fglayer);
 
         let xMin = Infinity;
         let xMax = -Infinity;
         let yMin = Infinity;
         let yMax = -Infinity;
 
-        for (let i = 0; i != rects.length; i++) {
-            let rect = rects[i];
+        for (let i = 0; i !== rects.length; i++) {
+            const rect = rects[i];
 
             xMin = Math.min(xMin, rect.left);
             xMax = Math.max(xMax, rect.left + rect.width);
@@ -85,25 +83,25 @@ export default class DomHighlightAnnotation extends Annotation {
 
     static fromRange(range, root) {
         return new this({
-            ...this.get_spec_base(),
+            ...this.getSpecBase(),
             text: range.toString(),
             startContext: {
                 xpath: getXPath(range.startContainer, root),
-                offset: range.startOffset
+                offset: range.startOffset,
             },
             endContext: {
                 xpath: getXPath(range.endContainer, root),
-                offset: range.endOffset
-            }
-        })
+                offset: range.endOffset,
+            },
+        });
     }
 
     toRange(root) {
-        let range = document.createRange();
+        const range = document.createRange();
 
         try {
-            range.setStart(document.evaluate(this.spec.startContext.xpath, root).iterateNext(), this.spec.startContext.offset)
-            range.setEnd(document.evaluate(this.spec.endContext.xpath, root).iterateNext(), this.spec.endContext.offset)
+            range.setStart(document.evaluate(this.spec.startContext.xpath, root).iterateNext(), this.spec.startContext.offset);
+            range.setEnd(document.evaluate(this.spec.endContext.xpath, root).iterateNext(), this.spec.endContext.offset);
             if (range.toString() !== this.spec.text) {
                 return null;
             }

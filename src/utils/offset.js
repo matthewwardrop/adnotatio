@@ -1,5 +1,3 @@
-'use strict';
-
 export function getDocumentOffset(el) {
     const rect = el.getBoundingClientRect();
     let scrollX = window.scrollX;
@@ -11,14 +9,14 @@ export function getDocumentOffset(el) {
     } while (el);
     return {
         top: rect.top + scrollY,
-        left: rect.left + scrollX
-    }
+        left: rect.left + scrollX,
+    };
 }
 
 export function getViewportOffset(el) {
     const rect = el.getBoundingClientRect();
     return {
         top: rect.top,
-        left: rect.left
-    }
+        left: rect.left,
+    };
 }

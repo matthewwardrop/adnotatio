@@ -1,5 +1,3 @@
-'use strict';
-
 export class Coord {
 
     constructor(x, y) {
@@ -26,44 +24,44 @@ export class BoundingBox {
         return this.top + this.height;
     }
 
-    get_relative_anchor(xr, yr) {
+    getRelativeAnchor(xr, yr) {
         return new Coord(this.left + xr * this.width, this.top + yr * this.height);
     }
 
     get topleft() {
-        return this.get_relative_anchor(0, 0);
+        return this.getRelativeAnchor(0, 0);
     }
 
     get topmiddle() {
-        return this.get_relative_anchor(0.5, 0);
+        return this.getRelativeAnchor(0.5, 0);
     }
 
     get topright() {
-        return this.get_relative_anchor(1, 0);
+        return this.getRelativeAnchor(1, 0);
     }
 
     get middleleft() {
-        return this.get_relative_anchor(0, 0.5);
+        return this.getRelativeAnchor(0, 0.5);
     }
 
     get center() {
-        return this.get_relative_anchor(0.5, 0.5);
+        return this.getRelativeAnchor(0.5, 0.5);
     }
 
     get middleright() {
-        return tihs.get_relative_anchor(1, 0.5);
+        return this.getRelativeAnchor(1, 0.5);
     }
 
     get bottomleft() {
-        return this.get_relative_anchor(0, 1);
+        return this.getRelativeAnchor(0, 1);
     }
 
     get bottommiddle() {
-        return this.get_relative_anchor(0.5, 1);
+        return this.getRelativeAnchor(0.5, 1);
     }
 
     get bottomright() {
-        return this.get_relative_anchor(1, 1);
+        return this.getRelativeAnchor(1, 1);
     }
 
     union(other) {

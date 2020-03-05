@@ -1,5 +1,3 @@
-'use strict';
-
 export class NotImplementedError extends Error {};
 
 export class CommentAlreadyExists extends Error {};

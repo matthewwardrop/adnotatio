@@ -1,6 +1,5 @@
+import { AnnotationClassNotFound, AnnotationSpecMalformed } from '../utils/errors';
 import Annotation from './base';
-import {AnnotationClassNotFound, AnnotationSpecMalformed} from '../utils/errors';
-
 
 export default class AnnotationFactory {
 
@@ -11,7 +10,7 @@ export default class AnnotationFactory {
 
     register(cls) {
         if (!(cls.prototype instanceof Annotation)) {
-            throw new Error("Object provided to `AnnotationFactory` is not a subclass of `Annotation`.");
+            throw new Error('Object provided to `AnnotationFactory` is not a subclass of `Annotation`.');
         }
         if (!(cls.TYPE in this.registry)) {
             this.registry[cls.TYPE] = {};
@@ -19,8 +18,8 @@ export default class AnnotationFactory {
         this.registry[cls.TYPE][cls.IMPLEMENTATION] = cls;
     }
 
-    classForType(type, implementation='default') {
-        if (!(type in this.registry) || !(implementation in this.registry[type]) ) {
+    classForType(type, implementation = 'default') {
+        if (!(type in this.registry) || !(implementation in this.registry[type])) {
             throw new AnnotationClassNotFound(
                 "No Annotation subclass found for type '" + type +
                 "' and implementation '" + implementation + "'."
@@ -30,8 +29,8 @@ export default class AnnotationFactory {
     }
 
     fromSpec(spec) {
-        if (!("type" in spec) || !("implementation" in spec)) {
-            throw new AnnotationSpecMalformed("Annotation spec is missing 'type' and/or 'implementation' keys.")
+        if (!('type' in spec) || !('implementation' in spec)) {
+            throw new AnnotationSpecMalformed("Annotation spec is missing 'type' and/or 'implementation' keys.");
         }
         if (!(spec.type in this.registry) || !(spec.implementation in this.registry[spec.type])) {
             throw new AnnotationClassNotFound(
