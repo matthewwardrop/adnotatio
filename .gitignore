@@ -75,6 +75,3 @@ typings/
 # Build directory
 /dist
 build
-
-# Npm package lock
-package-lock.json
