@@ -134,10 +134,11 @@ export default class CommentStorage {
         return this._stage.has(uuid) || this._cache.has(uuid);
     }
 
-    add = (comment) => {
-        if (this._cache.has(comment)) throw new CommentAlreadyExists(comment.uuid);
+    add = (comment, force=false) => {
+        let uuid = this._get_uuid(comment);
+        if (!force && this._cache.has(uuid)) throw new CommentAlreadyExists("Comment "+comment.uuid+" already exists!");
 
-        comment.state.isDraft = false;
+        comment = comment.copy();
         comment.context = this.context;
         this._stage.add_or_update(comment);
 
@@ -157,10 +158,7 @@ export default class CommentStorage {
 
     update = (comment) => {
         if (!this.exists(comment)) throw new CommentDoesNotExist(comment.uuid);
-
-        this._stage.add_or_update(comment);
-
-        return this.add(comment);
+        return this.add(comment, true);
     }
 
     patch = (comment, patch) => {

@@ -80,8 +80,8 @@ export default class Comment {
         return json;
     }
 
-    copy = () => {
-        return Comment.fromJSON(this.toJSON(true));
+    copy = (complete=false) => {
+        return Comment.fromJSON(this.toJSON(complete));
     }
 
     applyPatch = (patch) => {

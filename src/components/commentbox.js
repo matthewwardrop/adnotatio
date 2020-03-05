@@ -25,7 +25,7 @@ export default class CommentBox extends React.Component {
         super(props);
         this.domDraftTextArea = null;
         this.state = {
-            draft: this.props.comment.state.isDraft ? this.props.comment.copy() : undefined
+            draft: this.props.comment.state.isDraft ? this.props.comment.copy(true) : undefined
         };
     }
 
@@ -60,7 +60,7 @@ export default class CommentBox extends React.Component {
     }
 
     onEdit = () => {
-        let comment = this.props.comment.copy();
+        let comment = this.props.comment.copy(true);
         this.setState({draft: comment});
     }
 
