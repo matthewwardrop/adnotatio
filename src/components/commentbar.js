@@ -101,7 +101,7 @@ export default class CommentBar extends React.Component {
             0,
             this.state.activeComment
                 ? elements.findIndex(element => { return element.dataset.commentId === this.state.activeComment && !this.props.comments[element.dataset.commentId].state.isOrphan; })
-                : 0
+                : 0,
         );
 
         let minAboveOffset = Infinity;
@@ -132,6 +132,7 @@ export default class CommentBar extends React.Component {
 
             const yOffset = Math.max(minBelowOffset, state.y || 0);
             el.style.top = yOffset + 'px';
+            console.log(el.style.top);
 
             if (el.className === 'adnotatio-commentbar-orphanheader') {
                 if (orphanCount > 0) {

@@ -1,4 +1,4 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
 import resolve from '@rollup/plugin-node-resolve';
@@ -22,6 +22,7 @@ export default {
             exclude: ['src/**'],
         }),
         babel({
+            babelHelpers: 'bundled',
             exclude: 'node_modules/**',
         }),
         postcss(),

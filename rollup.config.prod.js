@@ -1,8 +1,8 @@
-import babel from 'rollup-plugin-babel';
+import babel from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import postcss from 'rollup-plugin-postcss';
 import resolve from '@rollup/plugin-node-resolve';
-import { uglify } from 'rollup-plugin-uglify';
+import { terser } from "rollup-plugin-terser";
 
 const dependencies = Object.keys(require('./package.json').dependencies);
 
@@ -23,9 +23,10 @@ export default {
             exclude: ['src/**'],
         }),
         babel({
+            babelHelpers: 'bundled',
             exclude: 'node_modules/**',
         }),
-        uglify({ compress: false, mangle: false, keep_fnames:true }),
+        terser({ compress: false, mangle: false, keep_fnames: true }),
         postcss(),
     ],
 };
