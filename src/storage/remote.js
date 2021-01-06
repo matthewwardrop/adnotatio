@@ -10,6 +10,7 @@ export default class RemoteCommentStorage extends CommentStorage {
         super();
         this.baseURL = baseURL;
         this._axios = null;
+        this._greatestTsUpdated = null;
     }
 
     get axios() {
@@ -69,9 +70,15 @@ export default class RemoteCommentStorage extends CommentStorage {
     onSync = () => {
         return (
             this.axios
-                .get('comments', { params: this.context })
+                .get('comments', { params: { ...this.context, ...(this._greatestTsUpdated !== null && { since: this._greatestTsUpdated }) } })
                 .then((response) => {
-                    return response.data.data.map(comment => { return Comment.fromJSON(comment.attributes, this.annotationFactory); });
+                    return response.data.data.map(comment => {
+                        const newComment = Comment.fromJSON(comment.attributes, this.annotationFactory);
+                        if (newComment.tsUpdated) {
+                            this._greatestTsUpdated = Math.max(this._greatestTsUpdated, newComment.tsUpdated);
+                        }
+                        return newComment;
+                    });
                 })
         );
     };
